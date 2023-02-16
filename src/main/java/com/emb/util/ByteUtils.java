@@ -58,37 +58,4 @@ public class ByteUtils {
 
         return prettyString.toString();
     }
-    // Testing speed
-    public static String makePrettyBinaryString0(long value, int nibblesAmount) {
-        return makePrettyBinaryString0(Long.toBinaryString(value), nibblesAmount);
-    }
-
-    public static String makePrettyBinaryString0(String string, int nibblesAmount) {
-        var binaryString = string.getBytes();
-        var prettyString = new StringBuilder();
-        var initialLength = binaryString.length;
-        var finalLength = nibblesAmount * 4;
-        var zerosAmount = finalLength - initialLength;
-
-        int i = 0;
-        while (i < zerosAmount) {
-            prettyString.append("0");
-            if ((i + 1) % 4 == 0)
-                prettyString.append(" ");
-            i++;
-        }
-
-        i = 0;
-        while (i < initialLength - 1) {
-            prettyString.append((char) binaryString[i]);
-
-            if ((i + 1) % 4 == 0)
-                prettyString.append(" ");
-
-            i++;
-        }
-        prettyString.append((char) binaryString[i]);
-
-        return prettyString.toString();
-    }
 }
