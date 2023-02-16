@@ -1,5 +1,7 @@
 package com.emb.util;
 
+import java.nio.ByteBuffer;
+
 public class ByteUtils {
     public static byte[] unsignedLongToByteArray(long unsignedLong) {
         byte[] bytes = new byte[8];
@@ -57,5 +59,27 @@ public class ByteUtils {
         prettyString.append((char) binaryString[i - zerosAmount]);
 
         return prettyString.toString();
+    }
+
+    public static long[] byteArrayToLongArray(byte[] bytes) {
+        final var buffer = ByteBuffer.wrap(bytes);
+        final var size = buffer.limit() % 8 == 0 ?
+                buffer.limit() / Byte.SIZE :
+                buffer.limit() / Byte.SIZE + 1;
+        final var longs = new long[size];
+
+        var i = 0;
+        while (buffer.remaining() >= 8) {
+            longs[i] = buffer.getLong();
+            i++;
+        }
+
+        if (buffer.hasRemaining()) {
+            final var shift = Long.SIZE - buffer.remaining() * Byte.SIZE;
+            final var tail = buffer.getLong(buffer.remaining());
+            longs[i] = tail << shift;
+        }
+
+        return longs;
     }
 }
