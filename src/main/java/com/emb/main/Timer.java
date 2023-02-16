@@ -87,16 +87,27 @@ public class Timer {
 
     public String getSummary() {
         return """
-               Estimated total: %dns
+               Estimated total: %dns (%ss)
                Estimated average: %fns
                Estimated min, max: %dns, %dns
                %d periods total (in ns): %s
                """.formatted(getTotalTime(),
+                             getTotalTime() / 1000 / 1000 / 1000,
                              getAverageTime(),
                              getMinTime(),
                              getMaxTime(),
                              getPeriodsAmount(),
                              periods.toString());
+    }
+
+    public static <T> Timer benchmark(Supplier<T> function) {
+        return benchmark(function, 1);
+    }
+
+    public static <T> Timer benchmark(Supplier<T> function, int times) {
+        final var timer = new Timer();
+        timer.bench(function, times);
+        return timer;
     }
 
     public <T> long bench(Supplier<T> function) {
