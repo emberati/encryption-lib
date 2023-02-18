@@ -1,9 +1,11 @@
 package com.emb.main;
 
+import com.emb.util.ByteUtils;
+
 public class FeistelEncrypt {
     // Объявление констант
     private static final int roundAmount = 8; // Число раундов
-    private static final int base32number = 0xFFFFFFFF; // 32 разрядное число
+    private static final long mask32right = 0xFFFFFFFFL; // 32 разрядное число
     private static final int size = 64;
 
     // Исходное сообщение
@@ -45,8 +47,9 @@ public class FeistelEncrypt {
     // Шифрование 64 разрядного блока
     public static long encryptBlock(long block) {
         // Выделяем из 64 разрядного блока левую и правую части
-        int leftHalfBlock = (int) ((block >>> 32) & base32number); // левый подблок (32 битный)
-        int rightHalfBlock = (int) (block & base32number); // правый подблок (32 битный)
+        // FIXME: 19.02.2023
+        int leftHalfBlock = (int) ((block >>> 32) & mask32right); // левый подблок (32 битный)
+        int rightHalfBlock = (int) (block & (int) mask32right); // правый подблок (32 битный)
 
         // Выполняются 8 раундов шифрования
         for (int i = 0; i < roundAmount; i++) {
@@ -56,7 +59,7 @@ public class FeistelEncrypt {
             int rightHalfBlockRound = rightHalfBlock ^ F(leftHalfBlock, roundKey); // новое значение правого блока (шифуется с помощью функуии F)
 
             // Вывод подблоков на входе раунда (для отладки)
-            System.out.printf("in %d left = %d; right = %d", i, leftHalfBlock, rightHalfBlock);
+//            System.out.printf("in %d left = %d; right = %d%n", i, leftHalfBlock, rightHalfBlock);
 
             // Если раунд не последний, то
             if (i < roundAmount - 1) {
@@ -71,12 +74,13 @@ public class FeistelEncrypt {
             // Вывод подблоков на выходе раунда (для отладки)
             // Выходной правый блок должен быть равен входному левому блоку для всех раундов КРОМЕ последнего
             // Для последнего раунда входной левый блок равен выходному левому
-            System.out.printf("out %d left = %d; right = %d", i, leftHalfBlock, rightHalfBlock);
+//            System.out.printf("out %d left = %d; right = %d%n", i, leftHalfBlock, rightHalfBlock);
         }
 
         // После всех раундов шифрования объединяем левый и правый подблоки в один большой шифрованный блок (64 битный)
-        long encryptedBlock = leftHalfBlock; // сначала записываем левую часть в правую половину
-        encryptedBlock = (encryptedBlock << 32) | (rightHalfBlock & base32number); // потом сдвигаем её влево и дописываем правую часть в освободившиеся биты
+//        long encryptedBlock = leftHalfBlock; // сначала записываем левую часть в правую половину
+//        encryptedBlock = (encryptedBlock << 32) | (rightHalfBlock & mask32right); // потом сдвигаем её влево и дописываем правую часть в освободившиеся биты
+        long encryptedBlock = (long) leftHalfBlock << 32 | rightHalfBlock & mask32right;
         // Возвращаем зашифрованный блок
         return encryptedBlock;
     }
@@ -84,8 +88,8 @@ public class FeistelEncrypt {
     // Расшифровка 64 разрядного блока
     public static long decryptBlock(long block) {
         // Выделяем из 64 разрядного блока левую и правую части
-        int leftHalfBlock = (int) (block >> 32) & base32number; // левый подблок (32 битный)
-        int rightHalfBlock = (int) (block & base32number); // правый подблок (32 битный)
+        int leftHalfBlock = (int) ((block >> 32) & mask32right); // левый подблок (32 битный)
+        int rightHalfBlock = (int) (block & mask32right); // правый подблок (32 битный)
 
         // Выполняются 8 раундов шифрования
         for (int i = roundAmount - 1; i >= 0; i--) {
@@ -95,7 +99,7 @@ public class FeistelEncrypt {
             int rightHalfBlockRound = rightHalfBlock ^ F(leftHalfBlock, K_i); // новое значение правого блока (шифуется с помощью функуии F)
 
             // Вывод подблоков на входе раунда (для отладки)
-            System.out.printf("in %s left = %d; right = %d", i, leftHalfBlock, rightHalfBlock);
+//            System.out.printf("in %s left = %d; right = %d%n", i, leftHalfBlock, rightHalfBlock);
 
             // Если раунд не последний, то
             if (i > 0) {
@@ -110,15 +114,44 @@ public class FeistelEncrypt {
             // Вывод подблоков на выходе раунда (для отладки)
             // Выходной правый блок должен быть равен входному левому блоку для всех раундов КРОМЕ последнего
             // Для последнего раунда входной левый блок равен выходному левому
-            System.out.printf("out %d left = %d; right = %d", i, leftHalfBlock, rightHalfBlock);
+//            System.out.printf("out %d left = %d; right = %d%n", i, leftHalfBlock, rightHalfBlock);
         }
 
         // После всех раундов шифрования объединяем левый и правый подблоки в один большой шифрованный блок (64 битный)
         // FIXME: 19.02.2023 
-        long decryptedBlock = (long) leftHalfBlock << 32 | (long) rightHalfBlock << 32 >>> 32; // сначала записываем левую часть в правую половину
-//        long decryptedBlock = leftHalfBlock;
-//        decryptedBlock = (decryptedBlock << 32) | (rightHalfBlock & base32number); // потом сдвигаем её влево и дописываем правую часть в освободившиеся биты
-
+//        long decryptedBlock = (long) leftHalfBlock << 32 | (long) rightHalfBlock << 32; // сначала записываем левую часть в правую половину
+        long decryptedBlock = leftHalfBlock;
+        decryptedBlock = (decryptedBlock << 32) | (rightHalfBlock & mask32right); // потом сдвигаем её влево и дописываем правую часть в освободившиеся биты
+//        long decryptedBlock = (long) leftHalfBlock << 32 | rightHalfBlock & mask32right;
         return decryptedBlock;
+    }
+
+    public static byte[] encrypt(byte[] bytes) {
+        final var encrypted = new byte[bytes.length];
+
+        var longBuffer = new byte[Byte.SIZE];
+        for (int i = 0; i < bytes.length - Byte.SIZE; i += Byte.SIZE) {
+            var block = 0L;
+            System.arraycopy(bytes, i, longBuffer, 0, Byte.SIZE);
+            block = ByteUtils.bytesToLong(longBuffer);
+            block = encryptBlock(block);
+            longBuffer = ByteUtils.longToBytes(block);
+            System.arraycopy(longBuffer, 0, encrypted, i, Byte.SIZE);
+        }
+        return encrypted;
+    }
+
+    public static byte[] decrypt(byte[] bytes) {
+        final var decrypted = new byte[bytes.length];
+        var longBuffer = new byte[Byte.SIZE];
+        for (int i = 0; i < bytes.length - Byte.SIZE; i += Byte.SIZE) {
+            var block = 0L;
+            System.arraycopy(bytes, i, longBuffer, 0, Byte.SIZE);
+            block = ByteUtils.bytesToLong(longBuffer);
+            block = decryptBlock(block);
+            longBuffer = ByteUtils.longToBytes(block);
+            System.arraycopy(longBuffer, 0, decrypted, i, Byte.SIZE);
+        }
+        return decrypted;
     }
 }
