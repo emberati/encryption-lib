@@ -14,20 +14,21 @@ public class TestMain {
 
     @Test
     public void testMessageEncryptDecrypt() {
-        var encryptedMessageBytes = FeistelEncrypt.encrypt(message.getBytes(charset));
-        var decryptedMessageBytes = FeistelEncrypt.decrypt(encryptedMessageBytes);
-
-        var encryptedMessage = new String(encryptedMessageBytes, charset);
-        var decryptedMessage = new String(decryptedMessageBytes, charset);
-
+        Assert.fail("Not implemented yet!");
+//        var encryptedMessageBytes = FeistelEncrypt.encrypt(message.getBytes(charset));
+//        var decryptedMessageBytes = FeistelEncrypt.decrypt(encryptedMessageBytes);
+//
+//        var encryptedMessage = new String(encryptedMessageBytes, charset);
+//        var decryptedMessage = new String(decryptedMessageBytes, charset);
+//
 //        System.out.printf("Original bytes:%n%s%n", joinPrettyBytes(messageBytes));
 //        System.out.printf("Original stroke:%n%s%n", message);
 //        System.out.printf("Encrypted bytes:%n%s%n", joinPrettyBytes(encryptedMessageBytes));
 //        System.out.printf("Encrypted stroke:%n%s%n", encryptedMessage);
 //        System.out.printf("Decrypted bytes:%n%s%n", joinPrettyBytes(decryptedMessageBytes));
 //        System.out.printf("Decrypted stroke:%n%s%n", decryptedMessage);
-
-        Assert.assertEquals(message, decryptedMessage);
+//
+//        Assert.assertEquals(message, decryptedMessage);
 //        Assert.assertEquals(messageBytes, decryptedMessageBytes);
     }
 

@@ -3,12 +3,15 @@ package com.emb.main;
 import java.util.Arrays;
 import java.util.Collection;
 
+import static com.emb.util.ByteUtils.numberToPrettyBinaryString;
 import static com.emb.util.ByteUtils.prettifyBinaryString;
 
 public class Main {
     public static void main(String[] args) {
-        var message = "Fuck u nigga!";
-        final var bytes = new byte[10];
+        final var block = (byte) 0b0000_1111;
+        final var shifted = block >>> 4;
+        System.out.println(numberToPrettyBinaryString(block));
+        System.out.println(numberToPrettyBinaryString(shifted));
     }
 /*
     public static long[] byteArrayToLongArray(byte[] bytes) {
