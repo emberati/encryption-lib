@@ -64,16 +64,24 @@ public class ByteUtils {
     }
 
     public static String joinPrettyBytes(byte[] bytes) {
-        var joiner = new StringJoiner(" ");
+        return joinPrettyBytes(bytes, ", ");
+    }
+
+    public static String joinPrettyBytes(byte[] bytes, String delim) {
+        var joiner = new StringJoiner(delim);
         for (var value: bytes) {
             joiner.add(numberToPrettyBinaryString(value));
         }
         return joiner.toString();
     }
 
-    public static String joinPrettyBytes(long[] bytes) {
-        var joiner = new StringJoiner(" ");
-        for (var value: bytes) {
+    public static String joinPrettyBytes(long[] longs) {
+        return joinPrettyBytes(longs, ", ");
+    }
+
+    public static String joinPrettyBytes(long[] longs, String delim) {
+        var joiner = new StringJoiner(delim);
+        for (var value: longs) {
             joiner.add(numberToPrettyBinaryString(value));
         }
         return joiner.toString();
