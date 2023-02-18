@@ -1,6 +1,8 @@
 package com.emb.util;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.StringJoiner;
 
 public class ByteUtils {
     public static byte[] unsignedLongToByteArray(long unsignedLong) {
@@ -22,28 +24,28 @@ public class ByteUtils {
         return bytes;
     }
 
-    public static String makePrettyBinaryString(long value) {
+    public static String numberToPrettyBinaryString(long value) {
         var string = Long.toBinaryString(value);
-        return makePrettyBinaryString(string);
+        return prettifyBinaryString(string);
     }
 
-    public static String makePrettyBinaryString(long value, int nibblesAmount) {
-        return makePrettyBinaryString(Long.toBinaryString(value), nibblesAmount);
+    public static String numberToPrettyBinaryString(long value, int nibblesAmount) {
+        return prettifyBinaryString(Long.toBinaryString(value), nibblesAmount);
     }
 
-    public static String makePrettyBinaryString(String string) {
+    public static String prettifyBinaryString(String string) {
         var length = string.length();
         var nibblesAmount = length / 4;
         if (length % 4 != 0) nibblesAmount += 1;
-        return makePrettyBinaryString(string, nibblesAmount);
+        return prettifyBinaryString(string, Math.max(nibblesAmount, 2));
     }
 
-    public static String makePrettyBinaryString(String string, int nibblesAmount) {
-        var binaryString = string.getBytes();
-        var prettyString = new StringBuilder();
-        var initialLength = binaryString.length;
-        var finalLength = Math.max(nibblesAmount * 4, initialLength);
-        var zerosAmount = finalLength - initialLength;
+    public static String prettifyBinaryString(String string, int nibblesAmount) {
+        final var binaryString = string.getBytes();
+        final var prettyString = new StringBuilder();
+        final var initialLength = binaryString.length;
+        final var finalLength = Math.max(nibblesAmount * 4, initialLength);
+        final var zerosAmount = finalLength - initialLength;
 
         int i = 0;
         while (i < finalLength - 1) {
@@ -61,15 +63,47 @@ public class ByteUtils {
         return prettyString.toString();
     }
 
+    public static String joinPrettyBytes(byte[] bytes) {
+        var joiner = new StringJoiner(" ");
+        for (var value: bytes) {
+            joiner.add(numberToPrettyBinaryString(value));
+        }
+        return joiner.toString();
+    }
+
+    public static String joinPrettyBytes(long[] bytes) {
+        var joiner = new StringJoiner(" ");
+        for (var value: bytes) {
+            joiner.add(numberToPrettyBinaryString(value));
+        }
+        return joiner.toString();
+    }
+
+    @Deprecated
+    public static byte[] removeZeroTail(byte[] bytes) {
+        var index = -1;
+        for (int i = 0; i < bytes.length; i++) {
+            if (bytes[i] == 0) {
+                index = i;
+                break;
+            }
+        }
+        if (index == -1) {
+            return Arrays.copyOf(bytes, bytes.length);
+        } else {
+            return Arrays.copyOf(bytes, bytes.length - (bytes.length - index));
+        }
+    }
+
     public static long[] byteArrayToLongArray(byte[] bytes) {
+        final var size = bytes.length % Byte.SIZE == 0 ?
+                bytes.length / Byte.SIZE :
+                bytes.length / Byte.SIZE + 1;
         final var buffer = ByteBuffer.wrap(bytes);
-        final var size = buffer.limit() % 8 == 0 ?
-                buffer.limit() / Byte.SIZE :
-                buffer.limit() / Byte.SIZE + 1;
         final var longs = new long[size];
 
         var i = 0;
-        while (buffer.remaining() >= 8) {
+        while (buffer.remaining() >= Byte.SIZE) {
             longs[i] = buffer.getLong();
             i++;
         }
@@ -80,6 +114,39 @@ public class ByteUtils {
             longs[i] = tail << shift;
         }
 
+//        System.out.printf("longs array len: %d%n", size);
+
         return longs;
+    }
+
+    public static byte[] longArrayToByteArray(long[] longs) {
+        final var size = Long.SIZE * longs.length / Byte.SIZE;
+        final var buffer = ByteBuffer.allocate(size);
+
+        for (var value : longs) {
+            buffer.putLong(value);
+//            System.out.println(numberToPrettyBinaryString(value));
+        }
+//        System.out.printf("bytes array len: %d%n", size);
+
+        return buffer.array();
+    }
+
+    public static byte[] longToBytes(long value) {
+        var bytes = new byte[Long.BYTES];
+        for (int i = Long.BYTES - 1; i >= 0; i--) {
+            bytes[i] = (byte) (value & 0xFF);
+            value >>= Byte.SIZE;
+        }
+        return bytes;
+    }
+
+    public static long bytesToLong(final byte[] bytes) {
+        var result = 0L;
+        for (int i = 0; i < Long.BYTES; i++) {
+            result <<= Byte.SIZE;
+            result |= (bytes[i] & 0xFF);
+        }
+        return result;
     }
 }
