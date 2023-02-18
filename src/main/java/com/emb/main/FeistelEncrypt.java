@@ -1,5 +1,7 @@
 package com.emb.main;
 
+import com.emb.util.ByteUtils;
+
 public class FeistelEncrypt {
     // Объявление констант
     static final int roundsAmount = 8; // Число раундов
@@ -129,19 +131,19 @@ public class FeistelEncrypt {
         return decryptedBlock;
     }
 
-    public static long[] encrypt(byte[] bytes) {
-        var encryptedBytes = new long[bytes.length];
-        for (int i = 0; i < bytes.length; i++) {
-            encryptedBytes[i] = encryptBlock(bytes[i]);
+    public static byte[] encrypt(byte[] bytes) {
+        var encryptedBytes = ByteUtils.byteArrayToLongArray(bytes);
+        for (int i = 0; i < encryptedBytes.length; i++) {
+            encryptedBytes[i] = encryptBlock(encryptedBytes[i]);
         }
-        return encryptedBytes;
+        return ByteUtils.longArrayToByteArray(encryptedBytes);
     }
 
-    public static byte[] decrypt(long[] bytes) {
-        var encryptedBytes = new byte[bytes.length];
-        for (int i = 0; i < bytes.length; i++) {
-            encryptedBytes[i] = (byte) decryptBlock((byte) bytes[i]);
+    public static byte[] decrypt(byte[] bytes) {
+        var encryptedLongs = ByteUtils.byteArrayToLongArray(bytes);
+        for (int i = 0; i < encryptedLongs.length; i++) {
+            encryptedLongs[i] = decryptBlock(encryptedLongs[i]);
         }
-        return encryptedBytes;
+        return ByteUtils.longArrayToByteArray(encryptedLongs);
     }
 }
