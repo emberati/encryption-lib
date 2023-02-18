@@ -8,10 +8,10 @@ import static com.emb.util.ByteUtils.prettifyBinaryString;
 
 public class Main {
     public static void main(String[] args) {
-        final var block = (byte) 0b0000_1111;
-        final var shifted = block >>> 4;
-        System.out.println(numberToPrettyBinaryString(block));
-        System.out.println(numberToPrettyBinaryString(shifted));
+        final var leftBlock = 0b1111_0101;
+        final var rightBlock = 0b0101_1111;
+        final var result = (short) leftBlock << 8 | (short) rightBlock;
+        System.out.println(numberToPrettyBinaryString(result));
     }
 /*
     public static long[] byteArrayToLongArray(byte[] bytes) {

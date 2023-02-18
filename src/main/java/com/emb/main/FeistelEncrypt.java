@@ -114,9 +114,11 @@ public class FeistelEncrypt {
         }
 
         // После всех раундов шифрования объединяем левый и правый подблоки в один большой шифрованный блок (64 битный)
-        long decryptedBlock = leftHalfBlock; // сначала записываем левую часть в правую половину
-        decryptedBlock = (decryptedBlock << 32) | (rightHalfBlock & base32number); // потом сдвигаем её влево и дописываем правую часть в освободившиеся биты
-        // Возвращаем зашифрованный блок
+        // FIXME: 19.02.2023 
+        long decryptedBlock = (long) leftHalfBlock << 32 | (long) rightHalfBlock << 32 >>> 32; // сначала записываем левую часть в правую половину
+//        long decryptedBlock = leftHalfBlock;
+//        decryptedBlock = (decryptedBlock << 32) | (rightHalfBlock & base32number); // потом сдвигаем её влево и дописываем правую часть в освободившиеся биты
+
         return decryptedBlock;
     }
 }
