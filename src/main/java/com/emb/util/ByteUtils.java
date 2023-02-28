@@ -24,6 +24,21 @@ public class ByteUtils {
         return bytes;
     }
 
+    public static String numberToPrettyBinaryString(byte value) {
+        var string = Integer.toBinaryString(value);
+        return prettifyBinaryString(string, 2);
+    }
+
+    public static String numberToPrettyBinaryString(short value) {
+        var string = Integer.toBinaryString(value);
+        return prettifyBinaryString(string, 4);
+    }
+
+    public static String numberToPrettyBinaryString(int value) {
+        var string = Integer.toBinaryString(value);
+        return prettifyBinaryString(string);
+    }
+
     public static String numberToPrettyBinaryString(long value) {
         var string = Long.toBinaryString(value);
         return prettifyBinaryString(string);
@@ -44,7 +59,7 @@ public class ByteUtils {
         final var binaryString = string.getBytes();
         final var prettyString = new StringBuilder();
         final var initialLength = binaryString.length;
-        final var finalLength = Math.max(nibblesAmount * 4, initialLength);
+        final var finalLength = nibblesAmount * 4;
         final var zerosAmount = finalLength - initialLength;
 
         int i = 0;
