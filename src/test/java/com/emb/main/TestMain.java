@@ -1,8 +1,8 @@
 package com.emb.main;
 
 import com.emb.util.ByteUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -31,8 +31,8 @@ public class TestMain {
         decryptedMessageBytes = ByteUtils.removeZeroTail(decryptedMessageBytes);
         decryptedMessage = new String(decryptedMessageBytes, charset);
 
-        Assert.assertEquals(ByteUtils.joinPrettyBytes(messageBytes), ByteUtils.joinPrettyBytes(decryptedMessageBytes));
-        Assert.assertEquals(message, decryptedMessage);
+        assertEquals(ByteUtils.joinPrettyBytes(messageBytes), ByteUtils.joinPrettyBytes(decryptedMessageBytes));
+        assertEquals(message, decryptedMessage);
     }
 
     @Test
@@ -50,10 +50,10 @@ public class TestMain {
         System.out.printf("Decrypted bytes [%d]:%n%s%n", decryptedMessageBytes.length, ByteUtils.joinPrettyBytes(decryptedMessageBytes));
         System.out.printf("Decrypted stroke:%n%s%n", decryptedMessage);
 
-        Assert.assertEquals(messageBytes.length, encryptedMessageBytes.length);
-        Assert.assertEquals(messageBytes.length, decryptedMessageBytes.length);
-        Assert.assertEquals(ByteUtils.joinPrettyBytes(messageBytes), ByteUtils.joinPrettyBytes(decryptedMessageBytes));
-        Assert.assertEquals(message, decryptedMessage);
+        assertEquals(messageBytes.length, encryptedMessageBytes.length);
+        assertEquals(messageBytes.length, decryptedMessageBytes.length);
+        assertEquals(ByteUtils.joinPrettyBytes(messageBytes), ByteUtils.joinPrettyBytes(decryptedMessageBytes));
+        assertEquals(message, decryptedMessage);
     }
 
     @Test
@@ -64,7 +64,7 @@ public class TestMain {
         final var originalBytesString = ByteUtils.numberToPrettyBinaryString(longValue, 16);
         final var decryptedBytesString = ByteUtils.numberToPrettyBinaryString(decryptedByteLong, 16);
 
-        Assert.assertEquals(originalBytesString, decryptedBytesString);
+        assertEquals(originalBytesString, decryptedBytesString);
     }
 
     @Test
@@ -75,7 +75,7 @@ public class TestMain {
         final var originalBytesString = ByteUtils.numberToPrettyBinaryString(longValue, 16);
         final var decryptedBytesString = ByteUtils.numberToPrettyBinaryString(decryptedByteLong, 16);
 
-        Assert.assertEquals(originalBytesString, decryptedBytesString);
+        assertEquals(originalBytesString, decryptedBytesString);
     }
 
     @Test
@@ -92,6 +92,6 @@ public class TestMain {
 
         System.out.println(originalBytesString);
         System.out.println(decryptedBytesString);
-        Assert.assertEquals(originalBytesString, decryptedBytesString);
+        assertEquals(originalBytesString, decryptedBytesString);
     }
 }

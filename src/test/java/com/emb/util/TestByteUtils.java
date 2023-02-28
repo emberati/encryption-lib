@@ -1,7 +1,7 @@
 package com.emb.util;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Arrays;
 
@@ -37,27 +37,27 @@ public class TestByteUtils {
         final var uglifiedBinaryString = removeSpaces(prettifiedBinaryString);
 
         try {
-            Assert.assertEquals(Long.parseLong(uglifiedBinaryString, 2), number);
+            assertEquals(Long.parseLong(uglifiedBinaryString, 2), number);
         } catch (Exception e) {
-            Assert.fail(e.getMessage());
+            fail(e.getMessage());
         }
     }
 
     @Test
     public void testPrettifyBinaryString() {
         final var prettifiedBinaryString = ByteUtils.prettifyBinaryString(binaryString);
-        Assert.assertEquals(TestByteUtils.prettifiedBinaryString, prettifiedBinaryString);
+        assertEquals(TestByteUtils.prettifiedBinaryString, prettifiedBinaryString);
     }
 
     @Test
     public void testPrettifyBinaryStringNoMatchingZeros() {
         final var prettifiedBinaryString = ByteUtils.prettifyBinaryString(binaryString, 16);
-        Assert.assertEquals(prettifiedBinaryStringNoMatchingZeros, prettifiedBinaryString);
+        assertEquals(prettifiedBinaryStringNoMatchingZeros, prettifiedBinaryString);
     }
 
     @Test
     public void testByteArrayToLongTranslation() {
-        Assert.assertEquals(longValue, ByteUtils.bytesToLong(byteArray));
+        assertEquals(longValue, ByteUtils.bytesToLong(byteArray));
     }
 
     @Test
@@ -70,21 +70,21 @@ public class TestByteUtils {
         final var transactedLong = 0xAAAAAAAA00000000L;
         final var translatedLong = ByteUtils.bytesToLong(bytesZeroTail);
 
-        Assert.assertEquals(ByteUtils.numberToPrettyBinaryString(transactedLong), ByteUtils.numberToPrettyBinaryString(translatedLong));
+        assertEquals(ByteUtils.numberToPrettyBinaryString(transactedLong), ByteUtils.numberToPrettyBinaryString(translatedLong));
     }
 
     @Test
     public void testLongToByteArrayTranslation() {
         final var translatedBytes = ByteUtils.longToBytes(longValue);
 
-        Assert.assertEquals(Arrays.toString(byteArray), Arrays.toString(translatedBytes));
+        assertEquals(Arrays.toString(byteArray), Arrays.toString(translatedBytes));
     }
 
     @Test
     public void testByteArrayToLongArray() {
         final var translatedLongArray = ByteUtils.byteArrayToLongArray(transactedByteArray);
 
-        Assert.assertEquals(Arrays.toString(transactedLongArray), Arrays.toString(translatedLongArray));
+        assertEquals(Arrays.toString(transactedLongArray), Arrays.toString(translatedLongArray));
     }
 
     @Test
@@ -94,7 +94,7 @@ public class TestByteUtils {
         System.out.println(Arrays.toString(transactedByteArray));
         System.out.println(Arrays.toString(translatedByteArray));
 
-        Assert.assertEquals(Arrays.toString(transactedByteArray), Arrays.toString(translatedByteArray));
+        assertEquals(Arrays.toString(transactedByteArray), Arrays.toString(translatedByteArray));
     }
 
     private String removeSpaces(final String string) {
