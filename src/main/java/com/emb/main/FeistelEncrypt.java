@@ -128,30 +128,51 @@ public class FeistelEncrypt {
 
     public static byte[] encrypt(byte[] bytes) {
         final var encrypted = new byte[bytes.length];
-
+        System.out.println("encrypting...");
+        // FIXME: 19.02.2023
         var longBuffer = new byte[Byte.SIZE];
-        for (int i = 0; i < bytes.length - Byte.SIZE; i += Byte.SIZE) {
-            var block = 0L;
-            System.arraycopy(bytes, i, longBuffer, 0, Byte.SIZE);
+        var i = 0;
+        var section = Math.min(Byte.SIZE, bytes.length - i);
+        var block = 0L;
+
+        while (section > 0) {
+            longBuffer = new byte[Byte.SIZE];
+            System.out.printf("i: %d, sec: %d; ", i, section);
+            System.arraycopy(bytes, i, longBuffer, 0, section);
             block = ByteUtils.bytesToLong(longBuffer);
             block = encryptBlock(block);
             longBuffer = ByteUtils.longToBytes(block);
-            System.arraycopy(longBuffer, 0, encrypted, i, Byte.SIZE);
+            System.arraycopy(longBuffer, 0, encrypted, i, section);
+
+            i += section;
+            section = Math.min(Byte.SIZE, bytes.length - i);
         }
+        System.out.println();
         return encrypted;
     }
 
     public static byte[] decrypt(byte[] bytes) {
         final var decrypted = new byte[bytes.length];
+        System.out.println("decrypting...");
+        // FIXME: 19.02.2023
         var longBuffer = new byte[Byte.SIZE];
-        for (int i = 0; i < bytes.length - Byte.SIZE; i += Byte.SIZE) {
-            var block = 0L;
-            System.arraycopy(bytes, i, longBuffer, 0, Byte.SIZE);
+        var i = 0;
+        var section = Math.min(Byte.SIZE, bytes.length - i);
+        var block = 0L;
+
+        while (section > 0) {
+            longBuffer = new byte[Byte.SIZE];
+            System.out.printf("i: %d, sec: %d; ", i, section);
+            System.arraycopy(bytes, i, longBuffer, 0, section);
             block = ByteUtils.bytesToLong(longBuffer);
             block = decryptBlock(block);
             longBuffer = ByteUtils.longToBytes(block);
-            System.arraycopy(longBuffer, 0, decrypted, i, Byte.SIZE);
+            System.arraycopy(longBuffer, 0, decrypted, i, section);
+
+            i += section;
+            section = Math.min(Byte.SIZE, bytes.length - i);
         }
+        System.out.println();
         return decrypted;
     }
 }
