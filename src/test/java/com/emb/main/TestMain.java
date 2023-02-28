@@ -14,8 +14,29 @@ public class TestMain {
     private static final byte[] messageBytes = message.getBytes(charset);
 
     @Test
+    public void testMessageEncryptDecrypt_usingTranslation() {
+        final var translatedMessageLongs = ByteUtils.byteArrayToLongArray(messageBytes);
+        final var encryptedMessageLongs = new long[translatedMessageLongs.length];
+        final var decryptedMessageLongs = new long[translatedMessageLongs.length];
+        var decryptedMessageBytes = new byte[messageBytes.length];
+        var decryptedMessage = "";
+        for (int i = 0; i < encryptedMessageLongs.length; i++) {
+            encryptedMessageLongs[i] = FeistelEncrypt.encryptBlock(translatedMessageLongs[i]);
+        }
+        for (int i = 0; i < decryptedMessageLongs.length; i++) {
+            decryptedMessageLongs[i] = FeistelEncrypt.decryptBlock(encryptedMessageLongs[i]);
+        }
+
+        decryptedMessageBytes = ByteUtils.longArrayToByteArray(decryptedMessageLongs);
+        decryptedMessageBytes = ByteUtils.removeZeroTail(decryptedMessageBytes);
+        decryptedMessage = new String(decryptedMessageBytes, charset);
+
+        Assert.assertEquals(ByteUtils.joinPrettyBytes(messageBytes), ByteUtils.joinPrettyBytes(decryptedMessageBytes));
+        Assert.assertEquals(message, decryptedMessage);
+    }
+
+    @Test
     public void testMessageEncryptDecrypt() {
-//        Assert.fail("Not implemented yet!");
         var encryptedMessageBytes = FeistelEncrypt.encrypt(message.getBytes(charset));
         var decryptedMessageBytes = FeistelEncrypt.decrypt(encryptedMessageBytes);
 
@@ -47,6 +68,17 @@ public class TestMain {
     }
 
     @Test
+    public void testLongZeroTailEncryptDecrypt() {
+        final var longValue = 0xAAAAAAAA00000000L;
+        final var encryptedBytesLong = FeistelEncrypt.encryptBlock(longValue);
+        final var decryptedByteLong = FeistelEncrypt.decryptBlock(encryptedBytesLong);
+        final var originalBytesString = ByteUtils.numberToPrettyBinaryString(longValue, 16);
+        final var decryptedBytesString = ByteUtils.numberToPrettyBinaryString(decryptedByteLong, 16);
+
+        Assert.assertEquals(originalBytesString, decryptedBytesString);
+    }
+
+    @Test
     public void testByteArrayEncryptDecrypt() {
         final var bytes = new byte[] {
                 (byte) 0b0000_0000, (byte) 0b0000_0001, (byte) 0b0001_1110, (byte) 0b1111_0011,
@@ -58,6 +90,8 @@ public class TestMain {
         final var originalBytesString = ByteUtils.numberToPrettyBinaryString(condensedBytesLong, 16);
         final var decryptedBytesString = ByteUtils.numberToPrettyBinaryString(decryptedByteLong, 16);
 
+        System.out.println(originalBytesString);
+        System.out.println(decryptedBytesString);
         Assert.assertEquals(originalBytesString, decryptedBytesString);
     }
 }

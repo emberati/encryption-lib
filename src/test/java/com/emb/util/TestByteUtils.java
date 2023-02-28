@@ -61,6 +61,19 @@ public class TestByteUtils {
     }
 
     @Test
+    public void testByteArrayZeroTailToLongArray() {
+        final var bytesZeroTail = new byte[] {
+                (byte) 0b1010_1010, (byte) 0b1010_1010, (byte) 0b1010_1010, (byte) 0b1010_1010,
+                (byte) 0b0000_0000, (byte) 0b0000_0000, (byte) 0b0000_0000, (byte) 0b0000_0000
+
+        };
+        final var transactedLong = 0xAAAAAAAA00000000L;
+        final var translatedLong = ByteUtils.bytesToLong(bytesZeroTail);
+
+        Assert.assertEquals(ByteUtils.numberToPrettyBinaryString(transactedLong), ByteUtils.numberToPrettyBinaryString(translatedLong));
+    }
+
+    @Test
     public void testLongToByteArrayTranslation() {
         final var translatedBytes = ByteUtils.longToBytes(longValue);
 
@@ -70,9 +83,6 @@ public class TestByteUtils {
     @Test
     public void testByteArrayToLongArray() {
         final var translatedLongArray = ByteUtils.byteArrayToLongArray(transactedByteArray);
-
-        System.out.println(Arrays.toString(transactedLongArray));
-        System.out.println(Arrays.toString(translatedLongArray));
 
         Assert.assertEquals(Arrays.toString(transactedLongArray), Arrays.toString(translatedLongArray));
     }
