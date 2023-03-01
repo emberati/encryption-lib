@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 
 public class TestMain {
     private static final Charset charset = StandardCharsets.UTF_8;
@@ -85,7 +84,7 @@ public class TestMain {
                 (byte) 0b0000_0000, (byte) 0b0000_0001, (byte) 0b0001_1110, (byte) 0b1111_0011,
                 (byte) 0b110_00000, (byte) 0b101_00101, (byte) 0b100_10010, (byte) 0b1111_1101
         };
-        final var condensedBytesLong = ByteUtils.bytesToLong(bytes);
+        final var condensedBytesLong = ByteUtils.byteArrayToLong(bytes);
         final var encryptedBytesLong = FeistelEncrypt.encryptBlock(condensedBytesLong);
         final var decryptedByteLong = FeistelEncrypt.decryptBlock(encryptedBytesLong);
         final var originalBytesString = ByteUtils.numberToPrettyBinaryString(condensedBytesLong, 16);

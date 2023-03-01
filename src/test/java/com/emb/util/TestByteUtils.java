@@ -1,6 +1,9 @@
 package com.emb.util;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Arrays;
@@ -57,7 +60,7 @@ public class TestByteUtils {
 
     @Test
     public void testByteArrayToLongTranslation() {
-        assertEquals(longValue, ByteUtils.bytesToLong(byteArray));
+        assertEquals(longValue, ByteUtils.byteArrayToLong(byteArray));
     }
 
     @Test
@@ -68,26 +71,22 @@ public class TestByteUtils {
 
         };
         final var transactedLong = 0xAAAAAAAA00000000L;
-        final var translatedLong = ByteUtils.bytesToLong(bytesZeroTail);
+        final var translatedLong = ByteUtils.byteArrayToLong(bytesZeroTail);
 
         assertEquals(ByteUtils.numberToPrettyBinaryString(transactedLong), ByteUtils.numberToPrettyBinaryString(translatedLong));
     }
 
-    @Test
-    public void testByteArrayToLong_lessBytes() {
-        final var bytes = new byte[] {
-                (byte) 0xFA, (byte) 0xAB,
-                (byte) 0xBB, (byte) 0xCD
-        };
-        final var convertedLong = ByteUtils.bytesToLong(bytes);
-        final var controlLong = 0xFAABBBCD00000000L;
-
+    @ParameterizedTest
+    @MethodSource("com.emb.util.TestByteUtilsArgumentProvider#testByteArrayToLong")
+    public void testByteArrayToLong(byte[] bytes, long controlLong) {
+        long convertedLong;
+        convertedLong = ByteUtils.byteArrayToLong(bytes);
         assertEquals(ByteUtils.numberToPrettyBinaryString(controlLong), ByteUtils.numberToPrettyBinaryString(convertedLong));
     }
 
     @Test
     public void testLongToByteArrayTranslation() {
-        final var translatedBytes = ByteUtils.longToBytes(longValue);
+        final var translatedBytes = ByteUtils.longToByteArray(longValue);
 
         assertEquals(Arrays.toString(byteArray), Arrays.toString(translatedBytes));
     }

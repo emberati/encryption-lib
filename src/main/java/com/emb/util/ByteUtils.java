@@ -155,7 +155,7 @@ public class ByteUtils {
         return buffer.array();
     }
 
-    public static byte[] longToBytes(long value) {
+    public static byte[] longToByteArray(long value) {
         var bytes = new byte[Long.BYTES];
         for (int i = Long.BYTES - 1; i >= 0; i--) {
             bytes[i] = (byte) (value & 0xFF);
@@ -164,7 +164,7 @@ public class ByteUtils {
         return bytes;
     }
 
-    public static long bytesToLong(final byte[] bytes) {
+    public static long byteArrayToLong(final byte[] bytes) {
         var result = 0L;
         for (int i = 0; i < Long.BYTES; i++) {
             result <<= Byte.SIZE;

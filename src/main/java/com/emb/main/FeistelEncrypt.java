@@ -139,9 +139,9 @@ public class FeistelEncrypt {
             longBuffer = new byte[Byte.SIZE];
             System.out.printf("i: %d, sec: %d; ", i, section);
             System.arraycopy(bytes, i, longBuffer, 0, section);
-            block = ByteUtils.bytesToLong(longBuffer);
+            block = ByteUtils.byteArrayToLong(longBuffer);
             block = encryptBlock(block);
-            longBuffer = ByteUtils.longToBytes(block);
+            longBuffer = ByteUtils.longToByteArray(block);
             System.arraycopy(longBuffer, 0, encrypted, i, section);
 
             i += section;
@@ -164,9 +164,9 @@ public class FeistelEncrypt {
             longBuffer = new byte[Byte.SIZE];
             System.out.printf("i: %d, sec: %d; ", i, section);
             System.arraycopy(bytes, i, longBuffer, 0, section);
-            block = ByteUtils.bytesToLong(longBuffer);
+            block = ByteUtils.byteArrayToLong(longBuffer);
             block = decryptBlock(block);
-            longBuffer = ByteUtils.longToBytes(block);
+            longBuffer = ByteUtils.longToByteArray(block);
             System.arraycopy(longBuffer, 0, decrypted, i, section);
 
             i += section;
