@@ -74,6 +74,18 @@ public class TestByteUtils {
     }
 
     @Test
+    public void testByteArrayToLong_lessBytes() {
+        final var bytes = new byte[] {
+                (byte) 0xFA, (byte) 0xAB,
+                (byte) 0xBB, (byte) 0xCD
+        };
+        final var convertedLong = ByteUtils.bytesToLong(bytes);
+        final var controlLong = 0xFAABBBCD00000000L;
+
+        assertEquals(ByteUtils.numberToPrettyBinaryString(controlLong), ByteUtils.numberToPrettyBinaryString(convertedLong));
+    }
+
+    @Test
     public void testLongToByteArrayTranslation() {
         final var translatedBytes = ByteUtils.longToBytes(longValue);
 
