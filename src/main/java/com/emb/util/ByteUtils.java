@@ -164,12 +164,19 @@ public class ByteUtils {
         return bytes;
     }
 
-    public static long byteArrayToLong(final byte[] bytes) {
+    public static long byteArrayToLong(byte[] bytes) {
+        bytes = stretchByteArrayToLong(bytes);
         var result = 0L;
         for (int i = 0; i < Long.BYTES; i++) {
             result <<= Byte.SIZE;
             result |= (bytes[i] & 0xFF);
         }
         return result;
+    }
+
+    public static byte[] stretchByteArrayToLong(byte[] bytes) {
+        final var bytesLongLength = new byte[Long.BYTES];
+        System.arraycopy(bytes, 0, bytesLongLength, 0, bytes.length);
+        return bytesLongLength;
     }
 }

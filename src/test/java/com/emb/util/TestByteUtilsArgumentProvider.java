@@ -6,6 +6,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.params.provider.Arguments.of;
 
+@SuppressWarnings("unused")
 public class TestByteUtilsArgumentProvider {
 
     public static Stream<Arguments> testByteArrayToLong() {
