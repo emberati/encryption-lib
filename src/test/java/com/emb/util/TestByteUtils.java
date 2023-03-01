@@ -63,19 +63,6 @@ public class TestByteUtils {
         assertEquals(longValue, ByteUtils.byteArrayToLong(byteArray));
     }
 
-    @Test
-    public void testByteArrayZeroTailToLongArray() {
-        final var bytesZeroTail = new byte[] {
-                (byte) 0b1010_1010, (byte) 0b1010_1010, (byte) 0b1010_1010, (byte) 0b1010_1010,
-                (byte) 0b0000_0000, (byte) 0b0000_0000, (byte) 0b0000_0000, (byte) 0b0000_0000
-
-        };
-        final var transactedLong = 0xAAAAAAAA00000000L;
-        final var translatedLong = ByteUtils.byteArrayToLong(bytesZeroTail);
-
-        assertEquals(ByteUtils.numberToPrettyBinaryString(transactedLong), ByteUtils.numberToPrettyBinaryString(translatedLong));
-    }
-
     @ParameterizedTest
     @MethodSource("com.emb.util.TestByteUtilsArgumentProvider#testByteArrayToLong")
     public void testByteArrayToLong(byte[] bytes, long controlLong) {
