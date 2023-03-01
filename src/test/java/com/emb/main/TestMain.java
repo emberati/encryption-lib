@@ -15,19 +15,20 @@ public class TestMain {
 
     @Test
     public void testMessageEncryptDecrypt_usingTranslation() {
-        final var translatedMessageLongs = ByteUtils.byteArrayToLongArray(messageBytes);
-        final var encryptedMessageLongs = new long[translatedMessageLongs.length];
-        final var decryptedMessageLongs = new long[translatedMessageLongs.length];
+        final var longs = ByteUtils.byteArrayToLongArray(messageBytes);
+
         var decryptedMessageBytes = new byte[messageBytes.length];
         var decryptedMessage = "";
-        for (int i = 0; i < encryptedMessageLongs.length; i++) {
-            encryptedMessageLongs[i] = FeistelEncrypt.encryptBlock(translatedMessageLongs[i]);
-        }
-        for (int i = 0; i < decryptedMessageLongs.length; i++) {
-            decryptedMessageLongs[i] = FeistelEncrypt.decryptBlock(encryptedMessageLongs[i]);
+
+        for (int i = 0; i < longs.length; i++) {
+            longs[i] = FeistelEncrypt.encryptBlock(longs[i]);
         }
 
-        decryptedMessageBytes = ByteUtils.longArrayToByteArray(decryptedMessageLongs);
+        for (int i = 0; i < longs.length; i++) {
+            longs[i] = FeistelEncrypt.decryptBlock(longs[i]);
+        }
+
+        decryptedMessageBytes = ByteUtils.longArrayToByteArray(longs);
         decryptedMessageBytes = ByteUtils.removeZeroTail(decryptedMessageBytes);
         decryptedMessage = new String(decryptedMessageBytes, charset);
 
