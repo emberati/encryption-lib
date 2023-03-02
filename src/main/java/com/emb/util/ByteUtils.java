@@ -1,9 +1,12 @@
 package com.emb.util;
 
+import com.emb.util.exception.IllegalByteShift;
+
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.StringJoiner;
 
+@SuppressWarnings("unused")
 public class ByteUtils {
 
     public static final int MASK_8_BIT = 0xFF;
@@ -203,49 +206,50 @@ public class ByteUtils {
     }
 
     /**
-     * Conducts shift type {@code shift} of {@code block} {@code times}.
-     * Behavior and the result of this function is equals to
-     * {@link com.emb.util.ByteUtils#shiftUnsigned(long, Shift.ShiftDeclaration, int)}
+     * Shifts block specified on parameter {@code block} by the way specified by parameter
+     * {@code shift}, on bits count depending on {@code shift}, only one per shift.
+     * {@link com.emb.util.ByteUtils#shift(long, Shift.ShiftDeclaration, int)}
      * with last parameter passed to 1.
      * For example, calling {@code shiftUnsignedTimes(0xDD, Shift.BYTE.left)}
      * will result in {@code 0xDD00L}.
      * In other words 0xDD (1101 1101), will result on 0x1BA (1101 1101 0000 0000)
-     * Here is an unsigned byte left shift of 8 bits (byte length) only once.
+     * Here is an byte left shift of 8 bits (byte length) only once.
      * @param block block what to shift
      * @param shift type of shifting, affects on shift direction,
      *              shift depth (how many bits are shifted),
-     *              mask used to unsigned shift
+     *              mask used to shift and on unsigned operation type
      * @return shifted long value
-     * @see com.emb.util.ByteUtils#shiftUnsignedTimes(long, Shift.ShiftDeclaration, int)
+     * @see com.emb.util.ByteUtils#shiftAll(long, Shift.ShiftDeclaration, int)
      */
-    public static long shiftUnsignedTimes(long block, Shift.ShiftDeclaration shift) {
-        return shiftUnsigned(block, shift, shift.getSize());
+    public static long shiftAll(long block, Shift.ShiftDeclaration shift) {
+        return shift(block, shift, shift.size());
     }
 
     /**
-     * Conducts shift type {@code shift} of {@code block} {@code times}.
-     * For example, calling {@code shiftUnsignedTimes(0xDD, Shift.BYTE.left, 1)}
+     * Shifts block specified on parameter {@code block} by the way specified by parameter
+     * {@code shift}, on bits count depending on {@code shift}, as many times as specified by {@code times}.
+     * For example, calling {@code shiftTimes(0xDD, Shift.BYTE.left, 1)}
      * will result in {@code 0xDD00L}.
      * In other words 0xDD (1101 1101), will result on 0x1BA (1101 1101 0000 0000)
-     * Here is an unsigned byte left shift of 8 bits (byte length) 1 times.
+     * Here is a byte left shift of 8 bits (byte length) 1 times.
      * <br/><br/>
      * Passing {@code Shift.BYTE.left}, byte mask {@code 0xFFL} will be used,
-     * and will result unsigned shifting on {@code left} direction by the byte number of bits (8 bit).
+     * and will result shifting on {@code left} direction by the byte number of bits (8 bit).
      * <br/><br/>
      * Passing {@code Shift.INT.right}, int mask {@code 0xFFFFFFFFL} will be used,
-     * and will result unsigned shift on {@code right} direction by the int number of bits (32 bit).
+     * and will result shift on {@code right} direction by the int number of bits (32 bit).
      * <br/><br/>
      * Last parameter will result how much will be shifted by the specified number of bits.
      * @param block block what to shift
      * @param shift type of shifting, affects on shift direction,
      *              shift depth (how many bits are shifted),
-     *              mask used to unsigned shift
+     *              mask used to shift and on unsigned operation type
      * @param times how many times to shift the {@code block}
      * @return shifted long value
-     * @see com.emb.util.ByteUtils#shiftUnsigned(long, Shift.ShiftDeclaration, int)
+     * @see com.emb.util.ByteUtils#shift(long, Shift.ShiftDeclaration, int)
      */
-    public static long shiftUnsignedTimes(long block, Shift.ShiftDeclaration shift, int times) {
-        return shiftUnsigned(block, shift, shift.getSize() * times);
+    public static long shiftAll(long block, Shift.ShiftDeclaration shift, int times) {
+        return shift(block, shift, shift.size() * times);
     }
 
     /**
@@ -256,18 +260,21 @@ public class ByteUtils {
      * will result in {@code 0x1BAL}.
      * In other words 0xDD (1101 1101), will result on 0x1BA (0001 1011 1010).
      * @param block block what to shift
-     * @param shift type of shift, affects on shift direction
-     *              and mask used to unsigned shift.
-     *              Unlike the {@link com.emb.util.ByteUtils#shiftUnsignedTimes(long, Shift.ShiftDeclaration, int)}
+     * @param shift type of shift, affects on shift direction,
+     *              mask used to shift and on unsigned operation type.
+     *              Unlike the {@link com.emb.util.ByteUtils#shiftAll(long, Shift.ShiftDeclaration, int)}
      *              shift depth (how many bits are shifted) depends only on parameter {@code on}.
      * @param on on how many bits to shift
      * @return shifted long value.
      */
-    public static long shiftUnsigned(long block, Shift.ShiftDeclaration shift, int on) {
-        if (shift.getDirection() == Shift.ShiftDirection.LEFT) {
-            return (block & shift.getMask()) << on;
+    public static long shift(long block, Shift.ShiftDeclaration shift, int on) {
+        System.out.println(numberToPrettyBinaryString((block & ~shift.type().mask())));
+        if ((block & ~shift.type().mask()) != 0x0L)
+            throw new IllegalByteShift(shift, block);
+        if (shift.direction() == Shift.ShiftDirection.LEFT) {
+            return (block & shift.mask()) << on;
         } else {
-            return (block & shift.getMask()) >> on;
+            return (block & shift.mask()) >> on;
         }
     }
 }
