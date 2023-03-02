@@ -1,35 +1,39 @@
 package com.emb.util;
 
 public enum Shift {
-    BYTE(ShiftDeclaration.BYTE_LEFT_SHIFT, ShiftDeclaration.BYTE_RIGHT_SHIFT),
-    SHORT(ShiftDeclaration.SHORT_LEFT_SHIFT, ShiftDeclaration.SHORT_RIGHT_SHIFT),
-    INT(ShiftDeclaration.INT_LEFT_SHIFT, ShiftDeclaration.INT_RIGHT_SHIFT);
+    BYTE(ShiftDeclaration.BYTE_SHIFT_LEFT, ShiftDeclaration.BYTE_SHIFT_RIGHT),
+    SHORT(ShiftDeclaration.SHORT_SHIFT_LEFT, ShiftDeclaration.SHORT_SHIFT_RIGHT),
+    INT(ShiftDeclaration.INT_SHIFT_LEFT, ShiftDeclaration.INT_SHIFT_RIGHT);
 
-    private enum ShiftType {
+    enum ShiftType implements EnumUtils.EnumPrettyName {
         BYTE,
         SHORT,
         INT
     }
 
-    private enum ShiftDirection {
+    enum ShiftDirection implements EnumUtils.EnumPrettyName {
         LEFT,
         RIGHT
     }
 
-    public enum ShiftDeclaration {
-        BYTE_LEFT_SHIFT(ShiftType.BYTE, ShiftDirection.LEFT),
-        BYTE_RIGHT_SHIFT(ShiftType.BYTE, ShiftDirection.RIGHT),
-        SHORT_LEFT_SHIFT(ShiftType.SHORT, ShiftDirection.LEFT),
-        SHORT_RIGHT_SHIFT(ShiftType.SHORT, ShiftDirection.RIGHT),
-        INT_LEFT_SHIFT(ShiftType.INT, ShiftDirection.LEFT),
-        INT_RIGHT_SHIFT(ShiftType.INT, ShiftDirection.RIGHT);
+    public enum ShiftDeclaration implements EnumUtils.EnumPrettyName {
+        BYTE_SHIFT_LEFT(ShiftType.BYTE, ShiftDirection.LEFT, Byte.MIN_VALUE, Byte.SIZE),
+        BYTE_SHIFT_RIGHT(ShiftType.BYTE, ShiftDirection.RIGHT, Byte.MIN_VALUE, Byte.SIZE),
+        SHORT_SHIFT_LEFT(ShiftType.SHORT, ShiftDirection.LEFT, Short.MIN_VALUE, Short.SIZE),
+        SHORT_SHIFT_RIGHT(ShiftType.SHORT, ShiftDirection.RIGHT, Short.MIN_VALUE, Short.SIZE),
+        INT_SHIFT_LEFT(ShiftType.INT, ShiftDirection.LEFT, Integer.MIN_VALUE, Integer.SIZE),
+        INT_SHIFT_RIGHT(ShiftType.INT, ShiftDirection.RIGHT, Integer.MIN_VALUE, Integer.SIZE);
 
         private final ShiftType type;
         private final ShiftDirection direction;
+        private final long mask;
+        private final int size;
 
-        ShiftDeclaration(ShiftType type, ShiftDirection direction) {
+        ShiftDeclaration(ShiftType type, ShiftDirection direction, long mask, int shift) {
             this.type = type;
             this.direction = direction;
+            this.mask = mask;
+            this.size = shift;
         }
 
         public ShiftType getType() {
@@ -40,6 +44,13 @@ public enum Shift {
             return this.direction;
         }
 
+        public long getMask() {
+            return this.mask;
+        }
+
+        public int getSize() {
+            return this.size;
+        }
     }
 
     public final ShiftDeclaration left;
