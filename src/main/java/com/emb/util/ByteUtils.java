@@ -5,6 +5,14 @@ import java.util.Arrays;
 import java.util.StringJoiner;
 
 public class ByteUtils {
+
+    public static final int MASK_8_BIT = 0xFF;
+    public static final int MASK_16_BIT = 0xFFFF;
+    public static final int MASK_32_BIT = 0xFFFFFFFF;
+    public static final int BYTE_MASK = MASK_8_BIT;
+    public static final int SHORT_MASK = MASK_16_BIT;
+    public static final int BYTE = MASK_32_BIT;
+
     public static byte[] unsignedLongToByteArray(long unsignedLong) {
         byte[] bytes = new byte[8];
         byte mask = (byte) 0xFF;
@@ -126,16 +134,27 @@ public class ByteUtils {
         final var longs = new long[size];
 
         var i = 0;
-        while (buffer.remaining() >= Byte.SIZE) {
+        while (buffer.remaining() >= Long.BYTES) {
             longs[i] = buffer.getLong();
             i++;
         }
 
+        System.out.println("bytes:");
+        System.out.println(ByteUtils.joinPrettyBytes(buffer.array(), " "));
+//        System.out.printf("capacity: %d, remaining: %d, position: %d, i: %d%n", buffer.capacity(), buffer.remaining(), buffer.position(), i);
         if (buffer.hasRemaining()) {
-            final var shift = Long.SIZE - buffer.remaining() * Byte.SIZE;
-            final var tail = buffer.getLong(buffer.remaining());
-            longs[i] = tail << shift;
+            var tail = 0L;
+            while (buffer.hasRemaining()) {
+                System.out.printf("capacity: %d, remaining: %d, position: %d, i: %d%n", buffer.capacity(), buffer.remaining(), buffer.position(), i);
+                tail = ((long) buffer.get() & 0xFF) << ((buffer.remaining() - 1) * Byte.SIZE);
+            }
+            longs[i] = tail;
+//            final var shift = Long.SIZE - buffer.remaining() * Byte.SIZE;
+//            final var longTail = buffer.getLong(buffer.position());
+//            longs[i] = longTail << shift;
         }
+        System.out.println("longs:");
+        System.out.println(ByteUtils.joinPrettyBytes(longs, " "));
 
 //        System.out.printf("longs array len: %d%n", size);
 
@@ -175,8 +194,80 @@ public class ByteUtils {
     }
 
     public static byte[] stretchByteArrayToLong(byte[] bytes) {
+        if (bytes.length > Long.BYTES) throw new RuntimeException(
+                "Length %d of bytes is bigger than 8 bytes in long!"
+                .formatted(bytes.length));
         final var bytesLongLength = new byte[Long.BYTES];
         System.arraycopy(bytes, 0, bytesLongLength, 0, bytes.length);
         return bytesLongLength;
+    }
+
+    /**
+     * Conducts shift type {@code shift} of {@code block} {@code times}.
+     * Behavior and the result of this function is equals to
+     * {@link com.emb.util.ByteUtils#shiftUnsigned(long, Shift.ShiftDeclaration, int)}
+     * with last parameter passed to 1.
+     * For example, calling {@code shiftUnsignedTimes(0xDD, Shift.BYTE.left)}
+     * will result in {@code 0xDD00L}.
+     * In other words 0xDD (1101 1101), will result on 0x1BA (1101 1101 0000 0000)
+     * Here is an unsigned byte left shift of 8 bits (byte length) only once.
+     * @param block block what to shift
+     * @param shift type of shifting, affects on shift direction,
+     *              shift depth (how many bits are shifted),
+     *              mask used to unsigned shift
+     * @return shifted long value
+     * @see com.emb.util.ByteUtils#shiftUnsignedTimes(long, Shift.ShiftDeclaration, int)
+     */
+    public static long shiftUnsignedTimes(long block, Shift.ShiftDeclaration shift) {
+        return shiftUnsigned(block, shift, shift.getSize());
+    }
+
+    /**
+     * Conducts shift type {@code shift} of {@code block} {@code times}.
+     * For example, calling {@code shiftUnsignedTimes(0xDD, Shift.BYTE.left, 1)}
+     * will result in {@code 0xDD00L}.
+     * In other words 0xDD (1101 1101), will result on 0x1BA (1101 1101 0000 0000)
+     * Here is an unsigned byte left shift of 8 bits (byte length) 1 times.
+     * <br/><br/>
+     * Passing {@code Shift.BYTE.left}, byte mask {@code 0xFFL} will be used,
+     * and will result unsigned shifting on {@code left} direction by the byte number of bits (8 bit).
+     * <br/><br/>
+     * Passing {@code Shift.INT.right}, int mask {@code 0xFFFFFFFFL} will be used,
+     * and will result unsigned shift on {@code right} direction by the int number of bits (32 bit).
+     * <br/><br/>
+     * Last parameter will result how much will be shifted by the specified number of bits.
+     * @param block block what to shift
+     * @param shift type of shifting, affects on shift direction,
+     *              shift depth (how many bits are shifted),
+     *              mask used to unsigned shift
+     * @param times how many times to shift the {@code block}
+     * @return shifted long value
+     * @see com.emb.util.ByteUtils#shiftUnsigned(long, Shift.ShiftDeclaration, int)
+     */
+    public static long shiftUnsignedTimes(long block, Shift.ShiftDeclaration shift, int times) {
+        return shiftUnsigned(block, shift, shift.getSize() * times);
+    }
+
+    /**
+     * Shifts block specified on parameter {@code block} by the way specified by parameter
+     * {@code shift} on bits count specified by the parameter {@code on}.
+     * The shift occurs only once per specified number of bits.
+     * For example, calling {@code shiftUnsigned(0xDD, Shift.BYTE, 1)}
+     * will result in {@code 0x1BAL}.
+     * In other words 0xDD (1101 1101), will result on 0x1BA (0001 1011 1010).
+     * @param block block what to shift
+     * @param shift type of shift, affects on shift direction
+     *              and mask used to unsigned shift.
+     *              Unlike the {@link com.emb.util.ByteUtils#shiftUnsignedTimes(long, Shift.ShiftDeclaration, int)}
+     *              shift depth (how many bits are shifted) depends only on parameter {@code on}.
+     * @param on on how many bits to shift
+     * @return shifted long value.
+     */
+    public static long shiftUnsigned(long block, Shift.ShiftDeclaration shift, int on) {
+        if (shift.getDirection() == Shift.ShiftDirection.LEFT) {
+            return (block & shift.getMask()) << on;
+        } else {
+            return (block & shift.getMask()) >> on;
+        }
     }
 }
