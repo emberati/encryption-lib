@@ -1,5 +1,6 @@
 package com.emb.util;
 
+import com.emb.util.exception.IllegalByteShift;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -7,6 +8,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Arrays;
+import java.util.concurrent.Executors;
 
 public class TestByteUtils {
     private static final long number = 0xFA3CDEBL;
@@ -97,5 +99,18 @@ public class TestByteUtils {
 
     private String removeSpaces(final String string) {
         return string.replace(" ", "");
+    }
+
+    @ParameterizedTest
+    @MethodSource("com.emb.util.TestByteUtilsArgumentProvider#testShiftAll")
+    public void testShiftAll(long block, Shift.ShiftDeclaration shift, int times, long controlValue) {
+        final var shifted = ByteUtils.shiftAll(block, shift, times);
+        assertEquals(ByteUtils.numberToPrettyBinaryString(controlValue, 16), ByteUtils.numberToPrettyBinaryString(shifted, 16));
+    }
+
+    @ParameterizedTest
+    @MethodSource("com.emb.util.TestByteUtilsArgumentProvider#testShiftAll_shouldThrow")
+    public void testShiftAll_shouldThrow(long block, Shift.ShiftDeclaration shift, int times, Class<? extends Exception> expectedException) {
+        assertThrows(expectedException, () -> ByteUtils.shiftAll(block, shift, times));
     }
 }
