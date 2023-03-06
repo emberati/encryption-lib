@@ -137,11 +137,17 @@ public class FeistelEncrypt {
 
         while (section > 0) {
             longBuffer = new byte[Byte.SIZE];
-            System.out.printf("i: %d, sec: %d; ", i, section);
+
             System.arraycopy(bytes, i, longBuffer, 0, section);
             block = ByteUtils.byteArrayToLong(longBuffer);
+
+            printBufferAndBlock(longBuffer, block);
+
             block = encryptBlock(block);
             longBuffer = ByteUtils.longToByteArray(block);
+
+            printBufferAndBlock(longBuffer, block);
+
             System.arraycopy(longBuffer, 0, encrypted, i, section);
 
             i += section;
@@ -149,6 +155,16 @@ public class FeistelEncrypt {
         }
         System.out.println();
         return encrypted;
+    }
+
+    public static byte[] encrypt0(byte[] bytes) {
+        final var longs = ByteUtils.byteArrayToLongArray(bytes);
+
+        for (int i = 0; i < longs.length; i++) {
+            longs[i] = FeistelEncrypt.encryptBlock(longs[i]);
+        }
+
+        return ByteUtils.longArrayToByteArray(longs);
     }
 
     public static byte[] decrypt(byte[] bytes) {
@@ -162,11 +178,17 @@ public class FeistelEncrypt {
 
         while (section > 0) {
             longBuffer = new byte[Byte.SIZE];
-            System.out.printf("i: %d, sec: %d; ", i, section);
+
             System.arraycopy(bytes, i, longBuffer, 0, section);
             block = ByteUtils.byteArrayToLong(longBuffer);
+
+            printBufferAndBlock(longBuffer, block);
+
             block = decryptBlock(block);
             longBuffer = ByteUtils.longToByteArray(block);
+
+            printBufferAndBlock(longBuffer, block);
+
             System.arraycopy(longBuffer, 0, decrypted, i, section);
 
             i += section;
@@ -174,5 +196,21 @@ public class FeistelEncrypt {
         }
         System.out.println();
         return decrypted;
+    }
+
+    private static void printBufferAndBlock(byte[] longBuffer, long block) {
+        System.out.printf("block : %s%n", ByteUtils.numberToPrettyBinaryString(block, 16));
+        System.out.printf("buffer: %s%n", ByteUtils.joinPrettyBytes(longBuffer, " "));
+        System.out.println();
+    }
+
+    public static byte[] decrypt0(byte[] bytes) {
+        final var longs = ByteUtils.byteArrayToLongArray(bytes);
+
+        for (int i = 0; i < longs.length; i++) {
+            longs[i] = FeistelEncrypt.decryptBlock(longs[i]);
+        }
+
+        return ByteUtils.longArrayToByteArray(longs);
     }
 }
