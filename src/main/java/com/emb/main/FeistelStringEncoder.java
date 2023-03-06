@@ -20,29 +20,13 @@ public class FeistelStringEncoder implements Encoder<String> {
 
     @Override
     public String encrypt(String data) {
-        var bytes = data.getBytes(charset);
-
-        final var longs = ByteUtils.byteArrayToLongArray(bytes);
-
-        for (int i = 0; i < longs.length; i++) {
-            longs[i] = FeistelEncrypt.encryptBlock(longs[i]);
-        }
-
-        bytes = ByteUtils.longArrayToByteArray(longs);
-        return new String(bytes, charset);
+//        return new String(FeistelEncrypt.encrypt(data.getBytes(charset)), charset);
+        return new String(FeistelEncrypt.encrypt0(data.getBytes(charset)), charset);
     }
 
     @Override
     public String decrypt(String data) {
-        var bytes = data.getBytes(charset);
-
-        final var longs = ByteUtils.byteArrayToLongArray(bytes);
-
-        for (int i = 0; i < longs.length; i++) {
-            longs[i] = FeistelEncrypt.decryptBlock(longs[i]);
-        }
-
-        bytes = ByteUtils.longArrayToByteArray(longs);
-        return new String(bytes, charset);
+        //        return new String(FeistelEncrypt.decrypt(data.getBytes(charset)), charset);
+        return new String(FeistelEncrypt.decrypt0(data.getBytes(charset)), charset);
     }
 }
