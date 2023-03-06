@@ -1,5 +1,6 @@
 package com.emb.util;
 
+import com.emb.util.exception.IllegalByteShift;
 import org.junit.jupiter.params.provider.Arguments;
 
 import java.util.stream.Stream;
@@ -8,32 +9,105 @@ import static org.junit.jupiter.params.provider.Arguments.of;
 
 @SuppressWarnings("unused")
 public class TestByteUtilsArgumentProvider {
+    public static final long lessLong = 0xFAABBBCDL;
+    public static final byte[] bytesLessLong = new byte[] {
+            (byte) 0xFA, (byte) 0xAB,
+            (byte) 0xBB, (byte) 0xCD
+    };
+    public static final long longZeroSuffix = 0xFAABBBCD00000000L;
+    public static final byte[] bytesZeroSuffix = new byte[] {
+            (byte) 0xFA, (byte) 0xAB,
+            (byte) 0xBB, (byte) 0xCD,
+            (byte) 0x00, (byte) 0x00,
+            (byte) 0x00, (byte) 0x00,
+
+    };
+    public static final long longZeroBorder = 0x0000AAAAAAAA0000L;
+    public static final byte[] bytesZeroBorder = new byte[] {
+            (byte) 0x00, (byte) 0x00,
+            (byte) 0xAA, (byte) 0xAA,
+            (byte) 0xAA, (byte) 0xAA,
+            (byte) 0x00, (byte) 0x00
+    };
+    public static final long longZeroPrefix = 0xFAABBBCDL;
+    public static final byte[] bytesZeroPrefix = new byte[] {
+            (byte) 0x00, (byte) 0x00,
+            (byte) 0x00, (byte) 0x00,
+            (byte) 0xFA, (byte) 0xAB,
+            (byte) 0xBB, (byte) 0xCD,
+    };
+    public static final long longOnesBorder = 0xFFFFAAAAAAAAFFFFL;
+    public static final byte[] bytesOnesBorder = new byte[] {
+            (byte) 0xFF, (byte) 0xFF,
+            (byte) 0xAA, (byte) 0xAA,
+            (byte) 0xAA, (byte) 0xAA,
+            (byte) 0xFF, (byte) 0xFF
+    };
+    public static final long longNegative = 0xFF55555555555555L;
+    public static final byte[] bytesNegative = new byte[] {
+            (byte) 0xFF, (byte) 0x55,
+            (byte) 0x55, (byte) 0x55,
+            (byte) 0x55, (byte) 0x55,
+            (byte) 0x55, (byte) 0x55,
+    };
+
+    public static final long longFullOnes = 0xFFFFFFFFFFFFFFFFL;
+    public static final byte[] bytesFullOnes = new byte[] {
+            (byte) 0xFF, (byte) 0xFF,
+            (byte) 0xFF, (byte) 0xFF,
+            (byte) 0xFF, (byte) 0xFF,
+            (byte) 0xFF, (byte) 0xFF,
+    };
+
+    public static final long longFullZeros = 0x0000000000000000L;
+    public static final byte[] bytesFullZeros = new byte[] {
+            (byte) 0x00, (byte) 0x00,
+            (byte) 0x00, (byte) 0x00,
+            (byte) 0x00, (byte) 0x00,
+            (byte) 0x00, (byte) 0x00,
+    };
 
     public static Stream<Arguments> testByteArrayToLong() {
-        final var bytesLessLong = new byte[] {
-                (byte) 0xFA, (byte) 0xAB,
-                (byte) 0xBB, (byte) 0xCD
-        };
-        final var controlLessLong = 0xFAABBBCD00000000L;
-        final var bytesZeroTail = new byte[] {
-                (byte) 0xFA, (byte) 0xAB,
-                (byte) 0xBB, (byte) 0xCD,
-                (byte) 0x00, (byte) 0x00,
-                (byte) 0x00, (byte) 0x00,
-
-        };
-        final var controlLongZeroTail = 0xFAABBBCD00000000L;
-        final var bytesNegative = new byte[] {
-                (byte) 0b1111_1111, (byte) 0b0101_0101,
-                (byte) 0b0101_0101, (byte) 0b0101_0101,
-                (byte) 0b0101_0101, (byte) 0b0101_0101,
-                (byte) 0b0101_0101, (byte) 0b0101_0101,
-        };
-        final var controlNegativeLong = 0xFF55555555555555L;
         return Stream.of(
-                of(bytesLessLong, controlLessLong),     // Check when byte array less length than long
-                of(bytesZeroTail, controlLongZeroTail), // Check when byte array has zero tail
-                of(bytesNegative, controlNegativeLong)  // Check when byte array has first negative value
+                of(bytesLessLong, lessLong),            // Check when byte array less length than long
+                of(bytesZeroSuffix, longZeroSuffix),    // Check when byte array has zero tail
+                of(bytesZeroPrefix, longZeroPrefix),
+                of(bytesZeroBorder, longZeroBorder),
+                of(bytesOnesBorder, longOnesBorder),
+                of(bytesNegative, longNegative),        // Check when byte array has first negative value
+                of(bytesFullOnes, longFullOnes),
+                of(bytesFullZeros, longFullZeros)
+        );
+    }
+
+    public static Stream<Arguments> testLongToByteArray() {
+        return Stream.of(
+                of(lessLong, bytesZeroPrefix),          // Check when byte array less length than long
+                of(longZeroSuffix, bytesZeroSuffix),    // Check when byte array has zero tail
+                of(longZeroPrefix, bytesZeroPrefix),
+                of(longZeroBorder, bytesZeroBorder),
+                of(longOnesBorder, bytesOnesBorder),
+                of(longNegative, bytesNegative),        // Check when byte array has first negative value
+                of(longFullOnes, bytesFullOnes),
+                of(longFullZeros, bytesFullZeros)
+        );
+    }
+
+    public static Stream<Arguments> testShiftAll() {
+        return Stream.of(
+                of(0xAAL, Shift.BYTE.left.unsigned(), 1, 0xAA00L),
+                of(0xAAL, Shift.BYTE.right.unsigned(), 1, 0x0L),
+                of(0xAAAAL, Shift.INT.left.unsigned(), 1, 0xAAAA00000000L),
+                of(0xAAAAL, Shift.INT.right.unsigned(), 1, 0x0L),
+                of(0xAAAAL, Shift.INT.left.unsigned(), 2, 0xAAAAL)
+        );
+    }
+
+    public static Stream<Arguments> testShiftAll_shouldThrow() {
+        return Stream.of(
+                of(0xAAAAL, Shift.BYTE.left, 1, IllegalByteShift.class),
+                of(0xAAAAAAAAL, Shift.SHORT.left, 1, IllegalByteShift.class),
+                of(0xAAAAAAAAAAAAL, Shift.INT.left, 1, IllegalByteShift.class)
         );
     }
 }
