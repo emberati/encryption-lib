@@ -130,9 +130,7 @@ public class ByteUtils {
     }
 
     public static long[] byteArrayToLongArray(byte[] bytes) {
-        final var size = bytes.length % Byte.SIZE == 0 ?
-                bytes.length / Byte.SIZE :
-                bytes.length / Byte.SIZE + 1;
+        final var size = amountOfLongsInByteArray(bytes);
         final var buffer = ByteBuffer.wrap(bytes);
         final var longs = new long[size];
 
@@ -197,12 +195,19 @@ public class ByteUtils {
     }
 
     public static byte[] stretchByteArrayToLong(byte[] bytes) {
-        if (bytes.length > Long.BYTES) throw new RuntimeException(
+        int shift;
+        if ((shift = Long.BYTES - bytes.length) < 0) throw new RuntimeException(
                 "Length %d of bytes is bigger than 8 bytes in long!"
                 .formatted(bytes.length));
         final var bytesLongLength = new byte[Long.BYTES];
-        System.arraycopy(bytes, 0, bytesLongLength, 0, bytes.length);
+        System.arraycopy(bytes, 0, bytesLongLength, shift, bytes.length);
         return bytesLongLength;
+    }
+
+    public static int amountOfLongsInByteArray(byte[] bytes) {
+        final var amount = bytes.length / Byte.SIZE;
+        if (bytes.length % Long.BYTES == 0) return amount;
+        else return amount + 1;
     }
 
     /**
@@ -213,7 +218,7 @@ public class ByteUtils {
      * For example, calling {@code shiftUnsignedTimes(0xDD, Shift.BYTE.left)}
      * will result in {@code 0xDD00L}.
      * In other words 0xDD (1101 1101), will result on 0x1BA (1101 1101 0000 0000)
-     * Here is an byte left shift of 8 bits (byte length) only once.
+     * Here is a byte left shift of 8 bits (byte length) only once.
      * @param block block what to shift
      * @param shift type of shifting, affects on shift direction,
      *              shift depth (how many bits are shifted),
@@ -268,7 +273,6 @@ public class ByteUtils {
      * @return shifted long value.
      */
     public static long shift(long block, Shift.ShiftDeclaration shift, int on) {
-        System.out.println(numberToPrettyBinaryString((block & ~shift.type().mask())));
         if ((block & ~shift.type().mask()) != 0x0L)
             throw new IllegalByteShift(shift, block);
         if (shift.direction() == Shift.ShiftDirection.LEFT) {
