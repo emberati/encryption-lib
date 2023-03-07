@@ -21,12 +21,14 @@ public class FeistelStringEncoder implements Encoder<String> {
     @Override
     public String encrypt(String data) {
 //        return new String(FeistelEncrypt.encrypt(data.getBytes(charset)), charset);
-        return new String(FeistelEncrypt.encrypt0(data.getBytes(charset)), charset);
+//        return new String(FeistelEncrypt.encrypt0(data.getBytes(charset)), charset);
+        return new String(byteEncoder.encrypt(data.getBytes(charset)), charset);
     }
 
     @Override
     public String decrypt(String data) {
-        //        return new String(FeistelEncrypt.decrypt(data.getBytes(charset)), charset);
-        return new String(FeistelEncrypt.decrypt0(data.getBytes(charset)), charset);
+//        return new String(FeistelEncrypt.decrypt(data.getBytes(charset)), charset);
+//        return new String(FeistelEncrypt.decrypt0(data.getBytes(charset)), charset);
+        return new String(byteEncoder.decrypt(data.getBytes(charset)), charset);
     }
 }

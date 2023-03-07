@@ -28,7 +28,7 @@ public class TestMain {
         }
 
         decryptedMessageBytes = ByteUtils.longArrayToByteArray(longs);
-        decryptedMessageBytes = ByteUtils.removeZeroTail(decryptedMessageBytes);
+        decryptedMessageBytes = ByteUtils.removeZeroSuffix(decryptedMessageBytes);
         decryptedMessage = new String(decryptedMessageBytes, charset);
 
         assertEquals(ByteUtils.joinPrettyBytes(messageBytes), ByteUtils.joinPrettyBytes(decryptedMessageBytes));

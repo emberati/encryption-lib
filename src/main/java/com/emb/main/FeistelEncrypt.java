@@ -129,18 +129,19 @@ public class FeistelEncrypt {
     }
 
     private static byte[] process(Function<Long, Long> action, byte[] source) {
-        final var target = new byte[source.length];
+        final var target = new byte[Math.max(source.length, Long.BYTES)];
         System.out.println("encrypting...");
         // FIXME: 19.02.2023
-        var longBuffer = new byte[Byte.SIZE];
+        var longBuffer = new byte[Long.BYTES];
         var i = 0;
-        var section = Math.min(Byte.SIZE, source.length - i);
+        var section = Math.min(Long.BYTES, source.length - i);
         var block = 0L;
 
         while (section > 0) {
-            longBuffer = new byte[Byte.SIZE];
+            longBuffer = new byte[section];
 
             System.arraycopy(source, i, longBuffer, 0, section);
+            longBuffer = ByteUtils.stretchByteArrayToLong(longBuffer);
             block = ByteUtils.byteArrayToLong(longBuffer);
 
             printBufferAndBlock(longBuffer, block);
@@ -150,10 +151,10 @@ public class FeistelEncrypt {
 
             printBufferAndBlock(longBuffer, block);
 
-            System.arraycopy(longBuffer, 0, target, i, section);
+            System.arraycopy(longBuffer, 0, target, i, Long.BYTES);
 
             i += section;
-            section = Math.min(Byte.SIZE, source.length - i);
+            section = Math.min(Long.BYTES, source.length - i);
         }
         System.out.println();
         return target;

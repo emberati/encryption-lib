@@ -3,7 +3,6 @@ package com.emb.util;
 import com.emb.util.exception.IllegalByteShift;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.StringJoiner;
 
 @SuppressWarnings("unused")
@@ -111,22 +110,6 @@ public class ByteUtils {
             joiner.add(numberToPrettyBinaryString(value));
         }
         return joiner.toString();
-    }
-
-    @Deprecated
-    public static byte[] removeZeroTail(byte[] bytes) {
-        var index = -1;
-        for (int i = 0; i < bytes.length; i++) {
-            if (bytes[i] == 0) {
-                index = i;
-                break;
-            }
-        }
-        if (index == -1) {
-            return Arrays.copyOf(bytes, bytes.length);
-        } else {
-            return Arrays.copyOf(bytes, bytes.length - (bytes.length - index));
-        }
     }
 
     public static long[] byteArrayToLongArray(byte[] bytes) {
@@ -280,5 +263,25 @@ public class ByteUtils {
         } else {
             return (block & shift.mask()) >> on;
         }
+    }
+
+    public static byte[] removeZeroPrefix(byte[] bytes) {
+        int i = 0;
+        for (; i < bytes.length; i++) {
+            if (bytes[i] != 0) break;
+        }
+        byte[] result = new byte[bytes.length - i];
+        System.arraycopy(bytes, i, result, 0, result.length);
+        return result;
+    }
+
+    public static byte[] removeZeroSuffix(byte[] bytes) {
+        int i = bytes.length - 1;
+        for (; i >= 0; i--) {
+            if (bytes[i] != 0) break;
+        }
+        byte[] result = new byte[i + 1];
+        System.arraycopy(bytes, 0, result, 0, result.length);
+        return result;
     }
 }
