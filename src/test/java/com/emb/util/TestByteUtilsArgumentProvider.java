@@ -51,6 +51,14 @@ public class TestByteUtilsArgumentProvider {
             (byte) 0x55, (byte) 0x55,
     };
 
+    public static final long longZerosOnes = 0xFFFFFFFF00000000L;
+    public static final byte[] bytesZerosOnes = new byte[] {
+            (byte) 0xFF, (byte) 0xFF,
+            (byte) 0xFF, (byte) 0xFF,
+            (byte) 0x00, (byte) 0x00,
+            (byte) 0x00, (byte) 0x00,
+    };
+
     public static final long longFullOnes = 0xFFFFFFFFFFFFFFFFL;
     public static final byte[] bytesFullOnes = new byte[] {
             (byte) 0xFF, (byte) 0xFF,
@@ -75,7 +83,8 @@ public class TestByteUtilsArgumentProvider {
                 of(bytesZeroBorder, longZeroBorder),
                 of(bytesOnesBorder, longOnesBorder),
                 of(bytesNegative, longNegative),        // Check when byte array has first negative value
-                of(bytesFullOnes, longFullOnes),
+                of(bytesZerosOnes, longZerosOnes),
+                of(bytesZerosOnes, longZerosOnes),
                 of(bytesFullZeros, longFullZeros)
         );
     }
@@ -88,7 +97,8 @@ public class TestByteUtilsArgumentProvider {
                 of(longZeroBorder, bytesZeroBorder),
                 of(longOnesBorder, bytesOnesBorder),
                 of(longNegative, bytesNegative),        // Check when byte array has first negative value
-                of(longFullOnes, bytesFullOnes),
+                of(longZerosOnes, bytesZerosOnes),
+                of(longZerosOnes, bytesZerosOnes),
                 of(longFullZeros, bytesFullZeros)
         );
     }

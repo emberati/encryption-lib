@@ -3,6 +3,7 @@ package com.emb.util;
 import com.emb.util.exception.IllegalByteShift;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.StringJoiner;
 
 @SuppressWarnings("unused")
@@ -177,22 +178,6 @@ public class ByteUtils {
         return result;
     }
 
-    public static byte[] stretchByteArrayToLong(byte[] bytes) {
-        int shift;
-        if ((shift = Long.BYTES - bytes.length) < 0) throw new RuntimeException(
-                "Length %d of bytes is bigger than 8 bytes in long!"
-                .formatted(bytes.length));
-        final var bytesLongLength = new byte[Long.BYTES];
-        System.arraycopy(bytes, 0, bytesLongLength, shift, bytes.length);
-        return bytesLongLength;
-    }
-
-    public static int amountOfLongsInByteArray(byte[] bytes) {
-        final var amount = bytes.length / Byte.SIZE;
-        if (bytes.length % Long.BYTES == 0) return amount;
-        else return amount + 1;
-    }
-
     /**
      * Shifts block specified on parameter {@code block} by the way specified by parameter
      * {@code shift}, on bits count depending on {@code shift}, only one per shift.
@@ -265,14 +250,28 @@ public class ByteUtils {
         }
     }
 
+    public static byte[] stretchByteArrayToLong(byte[] bytes) {
+        int shift;
+        if ((shift = Long.BYTES - bytes.length) < 0) throw new RuntimeException(
+                "Length %d of bytes is bigger than 8 bytes in long!"
+                        .formatted(bytes.length));
+        final var bytesLongLength = new byte[Long.BYTES];
+        System.arraycopy(bytes, 0, bytesLongLength, shift, bytes.length);
+        return bytesLongLength;
+    }
+
+    public static int amountOfLongsInByteArray(byte[] bytes) {
+        final var amount = bytes.length / Long.BYTES;
+        if (bytes.length % Long.BYTES == 0) return amount;
+        else return amount + 1;
+    }
+
     public static byte[] removeZeroPrefix(byte[] bytes) {
         int i = 0;
         for (; i < bytes.length; i++) {
             if (bytes[i] != 0) break;
         }
-        byte[] result = new byte[bytes.length - i];
-        System.arraycopy(bytes, i, result, 0, result.length);
-        return result;
+        return Arrays.copyOfRange(bytes, i, bytes.length);
     }
 
     public static byte[] removeZeroSuffix(byte[] bytes) {
@@ -280,8 +279,14 @@ public class ByteUtils {
         for (; i >= 0; i--) {
             if (bytes[i] != 0) break;
         }
-        byte[] result = new byte[i + 1];
-        System.arraycopy(bytes, 0, result, 0, result.length);
-        return result;
+        return Arrays.copyOfRange(bytes, 0, bytes.length);
+//        return removePrefix(bytes, i + 1);
+    }
+
+    public static byte[] removePrefix(byte[] bytes, int length) {
+//        byte[] result = new byte[length];
+//        System.arraycopy(bytes, bytes.length - length, result, 0, result.length);
+//        return result;
+        return Arrays.copyOfRange(bytes, bytes.length - length, bytes.length);
     }
 }

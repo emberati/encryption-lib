@@ -2,6 +2,7 @@ package com.emb.main;
 
 import com.emb.util.ByteUtils;
 
+import java.util.Arrays;
 import java.util.function.Function;
 
 public class FeistelEncrypt {
@@ -49,9 +50,8 @@ public class FeistelEncrypt {
     // Шифрование 64 разрядного блока
     public static long encryptBlock(long block) {
         // Выделяем из 64 разрядного блока левую и правую части
-        // FIXME: 19.02.2023
-        int leftHalfBlock = (int) ((block >>> 32) & mask32right); // левый подблок (32 битный)
-        int rightHalfBlock = (int) (block & (int) mask32right); // правый подблок (32 битный)
+        int leftHalfBlock = (int) ((block >> 32) & mask32right); // левый подблок (32 битный)
+        int rightHalfBlock = (int) (block & mask32right); // правый подблок (32 битный)
 
         // Выполняются 8 раундов шифрования
         for (int i = 0; i < roundAmount; i++) {
@@ -82,9 +82,10 @@ public class FeistelEncrypt {
         // После всех раундов шифрования объединяем левый и правый подблоки в один большой шифрованный блок (64 битный)
 //        long encryptedBlock = leftHalfBlock; // сначала записываем левую часть в правую половину
 //        encryptedBlock = (encryptedBlock << 32) | (rightHalfBlock & mask32right); // потом сдвигаем её влево и дописываем правую часть в освободившиеся биты
-        long encryptedBlock = (long) leftHalfBlock << 32 | rightHalfBlock & mask32right;
-        // Возвращаем зашифрованный блок
-        return encryptedBlock;
+//        long encryptedBlock = (long) leftHalfBlock << 32 | (rightHalfBlock & mask32right);
+//        // Возвращаем зашифрованный блок
+//        return encryptedBlock;
+        return (long) leftHalfBlock << 32 | (long) rightHalfBlock & mask32right; // потом сдвигаем её влево и дописываем правую часть в освободившиеся биты
     }
 
     // Расшифровка 64 разрядного блока
@@ -122,41 +123,52 @@ public class FeistelEncrypt {
         // После всех раундов шифрования объединяем левый и правый подблоки в один большой шифрованный блок (64 битный)
         // FIXME: 19.02.2023 
 //        long decryptedBlock = (long) leftHalfBlock << 32 | (long) rightHalfBlock << 32; // сначала записываем левую часть в правую половину
-        long decryptedBlock = leftHalfBlock;
-        decryptedBlock = (decryptedBlock << 32) | (rightHalfBlock & mask32right); // потом сдвигаем её влево и дописываем правую часть в освободившиеся биты
 //        long decryptedBlock = (long) leftHalfBlock << 32 | rightHalfBlock & mask32right;
-        return decryptedBlock;
+        return (long) leftHalfBlock << 32 | (long) rightHalfBlock & mask32right; // потом сдвигаем её влево и дописываем правую часть в освободившиеся биты
     }
 
     private static byte[] process(Function<Long, Long> action, byte[] source) {
-        final var target = new byte[Math.max(source.length, Long.BYTES)];
-        System.out.println("encrypting...");
+        final var target = new byte[Long.BYTES * ByteUtils.amountOfLongsInByteArray(source)];
+
         // FIXME: 19.02.2023
-        var longBuffer = new byte[Long.BYTES];
+        byte[] buffer = new byte[Long.BYTES];
         var i = 0;
         var section = Math.min(Long.BYTES, source.length - i);
         var block = 0L;
 
-        while (section > 0) {
-            longBuffer = new byte[section];
+        while (section == Long.BYTES) {
 
-            System.arraycopy(source, i, longBuffer, 0, section);
-            longBuffer = ByteUtils.stretchByteArrayToLong(longBuffer);
-            block = ByteUtils.byteArrayToLong(longBuffer);
-
-            printBufferAndBlock(longBuffer, block);
+//            buffer = new byte[section];
+//
+            System.arraycopy(source, i, buffer, 0, section); // always 0 Long.BYTES - section
+//            buffer = ByteUtils.stretchByteArrayToLong(buffer);
+//            buffer = Arrays.copyOfRange(source, i, i + section);
+            block = ByteUtils.byteArrayToLong(buffer);
 
             block = action.apply(block);
-            longBuffer = ByteUtils.longToByteArray(block);
+            buffer = ByteUtils.longToByteArray(block);
 
-            printBufferAndBlock(longBuffer, block);
-
-            System.arraycopy(longBuffer, 0, target, i, Long.BYTES);
+            System.arraycopy(buffer, 0, target, i, section); // FIXME
 
             i += section;
             section = Math.min(Long.BYTES, source.length - i);
         }
-        System.out.println();
+
+        if (i < source.length) {
+            Arrays.fill(buffer, 0, Long.BYTES - section, (byte) 0);
+            System.arraycopy(source, i, buffer, Long.BYTES - section, section);
+
+            block = action.apply(block);
+            buffer = ByteUtils.longToByteArray(block);
+
+            System.arraycopy(buffer, 0, target, i, Long.BYTES); // FIXME
+
+            System.out.println("source: " + Arrays.toString(source));
+            System.out.println("buffer: " + Arrays.toString(buffer));
+            System.out.println("target: " + Arrays.toString(target));
+            System.out.printf("i: %d, section: %d, target length: %d%n",  i, section, target.length);
+        }
+
         return target;
     }
 

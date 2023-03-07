@@ -11,8 +11,8 @@ public class FeistelByteEncoder implements Encoder<byte[]> {
 
     @Override
     public byte[] decrypt(byte[] data) {
-//        return FeistelEncrypt.decrypt(data);
-        return ByteUtils.removeZeroPrefix(FeistelEncrypt.decrypt(data));
+        return FeistelEncrypt.decrypt(data);
+//        return ByteUtils.removeZeroPrefix(FeistelEncrypt.decrypt(data));
 //        FeistelEncrypt.decrypt0(data);
     }
 }
