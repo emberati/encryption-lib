@@ -93,4 +93,8 @@ public enum Shift {
         this.left = left;
         this.right = right;
     }
+
+    public long mask() {
+        return this.left.type().mask();
+    }
 }
