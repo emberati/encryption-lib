@@ -93,6 +93,32 @@ public class TestByteUtilsArgumentProvider {
         );
     }
 
+    public static Stream<Arguments> testByteArrayToLongArray() {
+        return Stream.of(
+                of(bytesLessLong, new long[] {lessLong}),            // Check when byte array less length than long
+                of(bytesZeroSuffix, new long[] {longZeroSuffix}),    // Check when byte array has zero tail
+                of(bytesZeroPrefix, new long[] {longZeroPrefix}),
+                of(bytesZeroBorder, new long[] {longZeroBorder}),
+                of(bytesOnesBorder, new long[] {longOnesBorder}),
+                of(bytesNegative, new long[] {longNegative}),        // Check when byte array has first negative value
+                of(bytesFullOnes, new long[] {longFullOnes}),
+                of(bytesFullZeros, new long[] {longFullZeros})
+        );
+    }
+
+    public static Stream<Arguments> testLongArrayToByteArray() {
+        return Stream.of(
+                of(new long[] {lessLong}, bytesLessLong),            // Check when byte array less length than long
+                of(new long[] {longZeroSuffix}, bytesZeroSuffix),    // Check when byte array has zero tail
+                of(new long[] {longZeroPrefix}, bytesZeroPrefix),
+                of(new long[] {longZeroBorder}, bytesZeroBorder),
+                of(new long[] {longOnesBorder}, bytesOnesBorder),
+                of(new long[] {longNegative}, bytesNegative),        // Check when byte array has first negative value
+                of(new long[] {longFullOnes}, bytesFullOnes),
+                of(new long[] {longFullZeros}, bytesFullZeros)
+        );
+    }
+
     public static Stream<Arguments> testShiftAll() {
         return Stream.of(
                 of(0xAAL, Shift.BYTE.left.unsigned(), 1, 0xAA00L),
