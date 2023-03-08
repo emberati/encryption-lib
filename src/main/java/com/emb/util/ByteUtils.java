@@ -3,6 +3,7 @@ package com.emb.util;
 import com.emb.util.exception.IllegalByteShift;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.StringJoiner;
 
 @SuppressWarnings("unused")
@@ -113,49 +114,26 @@ public class ByteUtils {
     }
 
     public static long[] byteArrayToLongArray(byte[] bytes) {
-        final var size = amountOfLongsInByteArray(bytes);
-        final var buffer = ByteBuffer.wrap(bytes);
-        final var longs = new long[size];
+        final var longs = new long[amountOfLongsInByteArray(bytes)];
 
-        var i = 0;
-        while (buffer.remaining() >= Long.BYTES) {
-            longs[i] = buffer.getLong();
-            i++;
+        for (int i = 0; i < longs.length; i++) {
+            var section = Math.min(Long.BYTES, bytes.length - i * Long.BYTES);
+            longs[i] = byteArrayToLong(Arrays.copyOfRange(bytes, i, i + section));
         }
-
-        System.out.println("bytes:");
-        System.out.println(ByteUtils.joinPrettyBytes(buffer.array(), " "));
-//        System.out.printf("capacity: %d, remaining: %d, position: %d, i: %d%n", buffer.capacity(), buffer.remaining(), buffer.position(), i);
-        if (buffer.hasRemaining()) {
-            var tail = 0L;
-            while (buffer.hasRemaining()) {
-                System.out.printf("capacity: %d, remaining: %d, position: %d, i: %d%n", buffer.capacity(), buffer.remaining(), buffer.position(), i);
-                tail = ((long) buffer.get() & 0xFF) << ((buffer.remaining() - 1) * Byte.SIZE);
-            }
-            longs[i] = tail;
-//            final var shift = Long.SIZE - buffer.remaining() * Byte.SIZE;
-//            final var longTail = buffer.getLong(buffer.position());
-//            longs[i] = longTail << shift;
-        }
-        System.out.println("longs:");
-        System.out.println(ByteUtils.joinPrettyBytes(longs, " "));
-
-//        System.out.printf("longs array len: %d%n", size);
 
         return longs;
     }
 
     public static byte[] longArrayToByteArray(long[] longs) {
-        final var size = Long.SIZE * longs.length / Byte.SIZE;
-        final var buffer = ByteBuffer.allocate(size);
-
-        for (var value : longs) {
-            buffer.putLong(value);
-//            System.out.println(numberToPrettyBinaryString(value));
+        final var bytes = new byte[longs.length * Long.BYTES];
+        var bytePosition = 0;
+        for (int i = 0; i < longs.length; i++) {
+            var buffer = longToByteArray(longs[i]);
+//            buffer = removeZeroPrefix(buffer);
+            System.arraycopy(buffer, 0, bytes, bytePosition, buffer.length);
+            bytePosition += buffer.length;
         }
-//        System.out.printf("bytes array len: %d%n", size);
-
-        return buffer.array();
+        return bytes;
     }
 
     public static byte[] longToByteArray(long value) {
