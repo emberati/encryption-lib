@@ -18,10 +18,8 @@ public class TestFeistelStringEncoder {
     @MethodSource("com.emb.main.TestFeistelStringEncoderArgumentProvider#testFeistelStringEncoderEncodeDecode")
     public void testFeistelStringEncoderEncryptDecrypt(String original, String controlValue) {
         final var byteEncoder = new FeistelStringEncoder();
-        final var encoded = byteEncoder.encrypt(original); System.out.println(encoded.getBytes().length);
-        final var decoded = byteEncoder.decrypt(encoded); System.out.println(decoded.getBytes().length);
-        // [56, 82, 40, -72, -124, -45, 80, -100]
-        // [56, 82, 40, -17, -65, -67, -17, -65, -67, -17, -65, -67, 80, -17, -65, -67]
+        final var encoded = byteEncoder.encrypt(original);
+        final var decoded = byteEncoder.decrypt(encoded);
         assertEquals(controlValue, decoded);
     }
 

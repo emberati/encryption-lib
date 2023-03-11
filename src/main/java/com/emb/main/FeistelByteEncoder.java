@@ -24,12 +24,12 @@ public class FeistelByteEncoder implements Encoder<byte[]> {
 
     @Override
     public byte[] encrypt(byte[] data) {
-        return process(this::encryptBlock, data);
+        return Encoder.process(this::encryptBlock, data);
     }
 
     @Override
     public byte[] decrypt(byte[] data) {
-        return process(this::decryptBlock, data);
+        return Encoder.process(this::decryptBlock, data);
     }
 
     @Deprecated
@@ -40,47 +40,6 @@ public class FeistelByteEncoder implements Encoder<byte[]> {
     @Deprecated
     public byte[] decrypt0(byte[] bytes) {
         return processAlternate(this::decryptBlock, bytes);
-    }
-
-    private static byte[] process(Function<Long, Long> action, byte[] source) {
-        final var target = new byte[Long.BYTES * ByteUtils.amountOfLongsInByteArray(source)];
-        System.out.printf("s: %s, t: %s, b: %s%n", source.length, target.length, ByteUtils.amountOfLongsInByteArray(source));
-
-        var buffer = new byte[Long.BYTES];
-        var i = 0;
-        var section = Math.min(Long.BYTES, source.length - i);
-        var block = 0L;
-
-        while (section > 0) {
-            Arrays.fill(buffer, 0, Long.BYTES - section, (byte) 0);
-
-            System.arraycopy(source, i, buffer, Long.BYTES - section, section);
-            block = ByteUtils.byteArrayToLong(buffer);
-
-            block = action.apply(block);
-            buffer = ByteUtils.longToByteArray(block);
-
-            System.arraycopy(buffer, 0, target, i, Long.BYTES);
-
-            i += section;
-            section = Math.min(Long.BYTES, source.length - i);
-        }
-
-        // cleaning zeros
-
-        byte[] tail;
-        byte[] head;
-
-        tail = Arrays.copyOfRange(target, target.length - Long.BYTES, target.length);
-        tail = ByteUtils.removeZeroPrefix(tail);
-        head = Arrays.copyOfRange(target, 0, target.length - Long.BYTES);
-
-        buffer = new byte[target.length - Long.BYTES + tail.length];
-
-        System.arraycopy(head, 0, buffer, 0, head.length);
-        System.arraycopy(tail, 0, buffer, head.length, tail.length);
-
-        return buffer;
     }
 
     @Deprecated
@@ -96,8 +55,7 @@ public class FeistelByteEncoder implements Encoder<byte[]> {
 
     private long encryptBlock(long block) {
         // Выделяем из 64 разрядного блока левую и правую части
-        // FIXME: 19.02.2023
-        int leftHalfBlock = (int) ((block >>> 32) & MASK_32_RIGHT); // левый подблок (32 битный)
+        int leftHalfBlock = (int) ((block >> 32) & MASK_32_RIGHT); // левый подблок (32 битный)
         int rightHalfBlock = (int) (block & (int) MASK_32_RIGHT); // правый подблок (32 битный)
 
         // Выполняются 8 раундов шифрования
@@ -123,9 +81,8 @@ public class FeistelByteEncoder implements Encoder<byte[]> {
         }
 
         // После всех раундов шифрования объединяем левый и правый подблоки в один большой шифрованный блок (64 битный)
-        long encryptedBlock = (long) leftHalfBlock << 32 | rightHalfBlock & MASK_32_RIGHT;
         // Возвращаем зашифрованный блок
-        return encryptedBlock;
+        return (long) leftHalfBlock << 32 | rightHalfBlock & MASK_32_RIGHT;
     }
 
     private long decryptBlock(long block) {
@@ -155,10 +112,7 @@ public class FeistelByteEncoder implements Encoder<byte[]> {
         }
 
         // После всех раундов шифрования объединяем левый и правый подблоки в один большой шифрованный блок (64 битный)
-        // FIXME: 19.02.2023
-        long decryptedBlock = leftHalfBlock;
-        decryptedBlock = (decryptedBlock << 32) | (rightHalfBlock & MASK_32_RIGHT); // потом сдвигаем её влево и дописываем правую часть в освободившиеся биты
-        return decryptedBlock;
+        return (long) leftHalfBlock << 32 | rightHalfBlock & MASK_32_RIGHT;
     }
 
     // Циклический сдвиг вправо для 32 бит
