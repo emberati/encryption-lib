@@ -114,7 +114,7 @@ public class SymmetricEncoding implements Encoder<byte[]> {
         return shifroblok;
     }
 
-    public static void Main(String[] args) {
+    public static void Mлain(String[] args) {
         // Исходное сообщение
         System.out.printf("%s%n", Arrays.toString(msg));
         // Зашифрованное сообщение

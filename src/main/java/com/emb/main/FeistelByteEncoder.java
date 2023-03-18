@@ -1,10 +1,6 @@
 package com.emb.main;
 
-import com.emb.util.ByteUtils;
-
-import java.util.Arrays;
 import java.util.Random;
-import java.util.function.Function;
 
 public class FeistelByteEncoder implements Encoder<byte[]> {
 
@@ -24,92 +20,47 @@ public class FeistelByteEncoder implements Encoder<byte[]> {
 
     @Override
     public byte[] encrypt(byte[] data) {
-        return Encoder.process(this::encryptBlock, data);
+        return Encoder.process(this::processEncrypt, data);
     }
 
     @Override
     public byte[] decrypt(byte[] data) {
-        return Encoder.process(this::decryptBlock, data);
+        return Encoder.process(this::processDecrypt, data);
     }
 
-    @Deprecated
-    public byte[] encrypt0(byte[] bytes) {
-        return processAlternate(this::encryptBlock, bytes);
+    private long processEncrypt(long block) {
+        return processBlock(block, false);
     }
 
-    @Deprecated
-    public byte[] decrypt0(byte[] bytes) {
-        return processAlternate(this::decryptBlock, bytes);
+    private long processDecrypt(long block) {
+        return processBlock(block, true);
     }
 
-    @Deprecated
-    private static byte[] processAlternate(Function<Long, Long> action, byte[] source) {
-        final var longs = ByteUtils.byteArrayToLongArray(source);
+    private long processBlock(long block, final boolean reverse) {
+        final var roundDirection = reverse ? -1 : 1;
+        final var stopIndex = reverse ? -1 : ROUND_AMOUNT;
+        var roundIndex = reverse ? ROUND_AMOUNT - 1 : 0;
 
-        for (int i = 0; i < longs.length; i++) {
-            longs[i] = action.apply(longs[i]);
-        }
-
-        return ByteUtils.longArrayToByteArray(longs);
-    }
-
-    private long encryptBlock(long block) {
         // Выделяем из 64 разрядного блока левую и правую части
-        int leftHalfBlock = (int) ((block >> 32) & MASK_32_RIGHT); // левый подблок (32 битный)
-        int rightHalfBlock = (int) (block & (int) MASK_32_RIGHT); // правый подблок (32 битный)
+        var leftHalfBlock = (int) ((block >> 32) & MASK_32_RIGHT); // левый подблок (32 битный)
+        var rightHalfBlock = (int) (block & (int) MASK_32_RIGHT); // правый подблок (32 битный)
+        var leftHalfBlockRound = 0;
+        var rightHalfBlockRound = 0;
 
-        // Выполняются 8 раундов шифрования
-        for (int i = 0; i < ROUND_AMOUNT; i++) {
-            int roundKey = roundKey(i, key); // генерация ключа для i-го раунда
-            // На i-м раунде значения подблоков изменяются
-            int leftHalfBlockRound = leftHalfBlock; // значение левого блока в конце раунда (такое же как в начале раунда)
-            int rightHalfBlockRound = rightHalfBlock ^ F(leftHalfBlock, roundKey); // новое значение правого блока (шифуется с помощью функуии F)
+        while(roundIndex != stopIndex) {                                    // Выполняются 8 раундов шифрования
+            int roundKey = roundKey(roundIndex, key);
 
-            // Если раунд не последний, то
-            if (i < ROUND_AMOUNT - 1) {
-                leftHalfBlock = rightHalfBlockRound; // правый подблок становится левым
-                rightHalfBlock = leftHalfBlockRound; // а левый подблок теперь правый
-            } else // После последнего раунда блоки не меняются местами
-            {
-                leftHalfBlock = leftHalfBlockRound;
-                rightHalfBlock = rightHalfBlockRound;
-            }
+            leftHalfBlockRound = leftHalfBlock;
+            rightHalfBlockRound = rightHalfBlock ^ F(leftHalfBlock, roundKey);
 
-            // Вывод подблоков на выходе раунда (для отладки)
-            // Выходной правый блок должен быть равен входному левому блоку для всех раундов КРОМЕ последнего
-            // Для последнего раунда входной левый блок равен выходному левому
+            leftHalfBlock = rightHalfBlockRound;
+            rightHalfBlock = leftHalfBlockRound;
+
+            roundIndex += roundDirection;
         }
 
-        // После всех раундов шифрования объединяем левый и правый подблоки в один большой шифрованный блок (64 битный)
-        // Возвращаем зашифрованный блок
-        return (long) leftHalfBlock << 32 | rightHalfBlock & MASK_32_RIGHT;
-    }
-
-    private long decryptBlock(long block) {
-        // Выделяем из 64 разрядного блока левую и правую части
-        int leftHalfBlock = (int) ((block >> 32) & MASK_32_RIGHT); // левый подблок (32 битный)
-        int rightHalfBlock = (int) (block & MASK_32_RIGHT); // правый подблок (32 битный)
-
-        // Выполняются 8 раундов шифрования
-        for (int i = ROUND_AMOUNT - 1; i >= 0; i--) {
-            int K_i = roundKey(i, key); // генерация ключа для i-го раунда
-            // На i-м раунде значения подблоков изменяются
-            int leftHalfBlockRound = leftHalfBlock; // значение левого блока в конце раунда (такое же как в начале раунда)
-            int rightHalfBlockRound = rightHalfBlock ^ F(leftHalfBlock, K_i); // новое значение правого блока (шифуется с помощью функуии F)
-
-            // Если раунд не последний, то
-            if (i > 0) {
-                leftHalfBlock = rightHalfBlockRound; // правый подблок становится левым
-                rightHalfBlock = leftHalfBlockRound; // а левый подблок теперь правый
-            } else // После последнего раунда блоки не меняются местами
-            {
-                leftHalfBlock = leftHalfBlockRound;
-                rightHalfBlock = rightHalfBlockRound;
-            }
-
-            // Выходной правый блок должен быть равен входному левому блоку для всех раундов КРОМЕ последнего
-            // Для последнего раунда входной левый блок равен выходному левому
-        }
+        leftHalfBlock = leftHalfBlockRound;
+        rightHalfBlock = rightHalfBlockRound;
 
         // После всех раундов шифрования объединяем левый и правый подблоки в один большой шифрованный блок (64 битный)
         return (long) leftHalfBlock << 32 | rightHalfBlock & MASK_32_RIGHT;
