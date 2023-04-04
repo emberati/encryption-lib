@@ -2,7 +2,6 @@ package com.emb.util;
 
 import com.emb.util.exception.IllegalByteShift;
 
-import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.StringJoiner;
 
@@ -15,25 +14,6 @@ public class ByteUtils {
     public static final int BYTE_MASK = MASK_8_BIT;
     public static final int SHORT_MASK = MASK_16_BIT;
     public static final int BYTE = MASK_32_BIT;
-
-    public static byte[] unsignedLongToByteArray(long unsignedLong) {
-        byte[] bytes = new byte[8];
-        byte mask = (byte) 0xFF;
-
-        for (int i = 0; i < bytes.length; i++) {
-            bytes[i] = (byte) ((unsignedLong >> i * 8) & mask);
-        }
-
-        bytes[0] = (byte) (unsignedLong & mask);
-        bytes[1] = (byte) ((unsignedLong >> 8) & mask);
-        bytes[2] = (byte) ((unsignedLong >> 16) & mask);
-        bytes[3] = (byte) ((unsignedLong >> 24) & mask);
-        bytes[4] = (byte) ((unsignedLong >> 32) & mask);
-        bytes[5] = (byte) ((unsignedLong >> 40) & mask);
-        bytes[6] = (byte) ((unsignedLong >> 48) & mask);
-        bytes[7] = (byte) ((unsignedLong >> 56) & mask);
-        return bytes;
-    }
 
     public static String numberToPrettyBinaryString(byte value) {
         var string = Integer.toBinaryString(value);
@@ -116,9 +96,17 @@ public class ByteUtils {
     public static long[] byteArrayToLongArray(byte[] bytes) {
         final var longs = new long[amountOfLongsInByteArray(bytes)];
 
-        for (int i = 0; i < longs.length; i++) {
-            var section = Math.min(Long.BYTES, bytes.length - i * Long.BYTES);
-            longs[i] = byteArrayToLong(Arrays.copyOfRange(bytes, i, i + section));
+        var byteArrayIndex = 0;
+        var longArrayIndex = 0;
+        var section = Math.min(Long.BYTES, bytes.length - byteArrayIndex);
+
+        while (section > 0) {
+            longs[longArrayIndex] = byteArrayToLong(Arrays.copyOfRange(bytes, byteArrayIndex, byteArrayIndex + section));
+
+            byteArrayIndex += section;
+            longArrayIndex = amountOfLongsInByteArray(byteArrayIndex);
+
+            section = Math.min(Long.BYTES, bytes.length - byteArrayIndex);
         }
 
         return longs;
@@ -127,8 +115,8 @@ public class ByteUtils {
     public static byte[] longArrayToByteArray(long[] longs) {
         final var bytes = new byte[longs.length * Long.BYTES];
         var bytePosition = 0;
-        for (int i = 0; i < longs.length; i++) {
-            var buffer = longToByteArray(longs[i]);
+        for (long block : longs) {
+            var buffer = longToByteArray(block);
 //            buffer = removeZeroPrefix(buffer);
             System.arraycopy(buffer, 0, bytes, bytePosition, buffer.length);
             bytePosition += buffer.length;
@@ -166,8 +154,12 @@ public class ByteUtils {
     }
 
     public static int amountOfLongsInByteArray(byte[] bytes) {
-        final var amount = bytes.length / Byte.SIZE;
-        if (bytes.length % Long.BYTES == 0) return amount;
+        return amountOfLongsInByteArray(bytes.length);
+    }
+
+    public static int amountOfLongsInByteArray(int byteArrayLength) {
+        final var amount = byteArrayLength / Byte.SIZE;
+        if (byteArrayLength % Long.BYTES == 0) return amount;
         else return amount + 1;
     }
 
