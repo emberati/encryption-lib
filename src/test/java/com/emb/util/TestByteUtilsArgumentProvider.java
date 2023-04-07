@@ -102,20 +102,54 @@ public class TestByteUtilsArgumentProvider {
                 of(bytesOnesBorder, new long[] {longOnesBorder}),
                 of(bytesNegative, new long[] {longNegative}),        // Check when byte array has first negative value
                 of(bytesFullOnes, new long[] {longFullOnes}),
-                of(bytesFullZeros, new long[] {longFullZeros})
+                of(bytesFullZeros, new long[] {longFullZeros}),
+                of(new byte[] {
+                        (byte) 0xAC, (byte) 0xAB, (byte) 0xCD, (byte) 0x7F,
+                        (byte) 0xC3, (byte) 0x14, (byte) 0x8A, (byte) 0xD5,
+
+                        (byte) 0x55, (byte) 0xE3, (byte) 0x02, (byte) 0xFE,
+                        (byte) 0x59, (byte) 0x13, (byte) 0x4D, (byte) 0xFF,
+
+                        (byte) 0x2F, (byte) 0x8A, (byte) 0x23, (byte) 0x88,
+                        (byte) 0xEE, (byte) 0xBA, (byte) 0x22, (byte) 0x38,
+
+                        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+                        (byte) 0x36, (byte) 0xF3, (byte) 0x6D, (byte) 0x99
+                }, new long[] {
+                        0xACABCD7FC3148AD5L, 0x55E302FE59134DFFL,
+                        0x2F8A2388EEBA2238L, 0x0000000036F36D99L
+
+                })
         );
     }
 
     public static Stream<Arguments> testLongArrayToByteArray() {
         return Stream.of(
-                of(new long[] {lessLong}, bytesLessLong),            // Check when byte array less length than long
+                of(new long[] {lessLong}, bytesZeroPrefix),          // Check when byte array less length than long
                 of(new long[] {longZeroSuffix}, bytesZeroSuffix),    // Check when byte array has zero tail
                 of(new long[] {longZeroPrefix}, bytesZeroPrefix),
                 of(new long[] {longZeroBorder}, bytesZeroBorder),
                 of(new long[] {longOnesBorder}, bytesOnesBorder),
                 of(new long[] {longNegative}, bytesNegative),        // Check when byte array has first negative value
                 of(new long[] {longFullOnes}, bytesFullOnes),
-                of(new long[] {longFullZeros}, bytesFullZeros)
+                of(new long[] {longFullZeros}, bytesFullZeros),
+                of(new long[] {
+                        0xACABCD7FC3148AD5L, 0x55E302FE59134DFFL,
+                        0x2F8A2388EEBA2238L, 0x0000000036F36D99L
+
+                }, new byte[] {
+                        (byte) 0xAC, (byte) 0xAB, (byte) 0xCD, (byte) 0x7F,
+                        (byte) 0xC3, (byte) 0x14, (byte) 0x8A, (byte) 0xD5,
+
+                        (byte) 0x55, (byte) 0xE3, (byte) 0x02, (byte) 0xFE,
+                        (byte) 0x59, (byte) 0x13, (byte) 0x4D, (byte) 0xFF,
+
+                        (byte) 0x2F, (byte) 0x8A, (byte) 0x23, (byte) 0x88,
+                        (byte) 0xEE, (byte) 0xBA, (byte) 0x22, (byte) 0x38,
+
+                        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+                        (byte) 0x36, (byte) 0xF3, (byte) 0x6D, (byte) 0x99
+                })
         );
     }
 

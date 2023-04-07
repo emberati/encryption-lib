@@ -1,6 +1,10 @@
 package com.emb.main;
 
+import com.emb.util.ByteUtils;
+
+import java.util.Arrays;
 import java.util.Random;
+import java.util.function.Function;
 
 public class FeistelByteEncoder implements Encoder<byte[]> {
 
@@ -20,20 +24,67 @@ public class FeistelByteEncoder implements Encoder<byte[]> {
 
     @Override
     public byte[] encrypt(byte[] data) {
-        return Encoder.process(this::processEncrypt, data);
+        return convertAndEncrypt(this::encryptBlock, data);
     }
 
     @Override
     public byte[] decrypt(byte[] data) {
-        return Encoder.process(this::processDecrypt, data);
+        final var longArray = ByteUtils.byteArrayToLongArray(data);
+        final var encryptedLongs = new long[longArray.length];
+        for (int i = 0; i < longArray.length; i++) {
+            encryptedLongs[i] = decryptBlock(longArray[i]);
+        }
+
+        return ByteUtils.removeZeroPrefix(ByteUtils.longArrayToByteArray(encryptedLongs));
     }
 
-    private long processEncrypt(long block) {
+    private long encryptBlock(long block) {
         return processBlock(block, false);
     }
 
-    private long processDecrypt(long block) {
+    private long decryptBlock(long block) {
         return processBlock(block, true);
+    }
+
+    // Разбивание на блоки и параллельное шфрование/дешифрование
+    private byte[] convertAndEncrypt(Function<Long, Long> action, byte[] source) {
+        final var target = new byte[Long.BYTES * ByteUtils.amountOfLongsInByteArray(source)];
+
+        var buffer = new byte[Long.BYTES];
+        var i = 0;
+        var section = Math.min(Long.BYTES, source.length - i);
+        var block = 0L;
+
+        while (section > 0) {
+            Arrays.fill(buffer, 0, Long.BYTES - section, (byte) 0);
+
+            System.arraycopy(source, i, buffer, Long.BYTES - section, section);
+            block = ByteUtils.byteArrayToLong(buffer);
+
+            block = action.apply(block);
+            buffer = ByteUtils.longToByteArray(block);
+
+            System.arraycopy(buffer, 0, target, i, Long.BYTES);
+
+            i += section;
+            section = Math.min(Long.BYTES, source.length - i);
+        }
+
+        // cleaning zeros
+
+        byte[] tail;
+        byte[] head;
+
+        tail = Arrays.copyOfRange(target, target.length - Long.BYTES, target.length);
+        tail = ByteUtils.removeZeroPrefix(tail);
+        head = Arrays.copyOfRange(target, 0, target.length - Long.BYTES);
+
+        buffer = new byte[target.length - Long.BYTES + tail.length];
+
+        System.arraycopy(head, 0, buffer, 0, head.length);
+        System.arraycopy(tail, 0, buffer, head.length, tail.length);
+
+        return buffer;
     }
 
     private long processBlock(long block, final boolean reverse) {

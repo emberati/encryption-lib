@@ -8,6 +8,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Arrays;
+import java.util.Scanner;
 
 public class TestByteUtils {
     private static final long number = 0xFA3CDEBL;
@@ -49,18 +50,31 @@ public class TestByteUtils {
         assertEquals(controlValueString, convertedBytesString);
     }
 
+    @Test
+    public void caesar() {
+        var scanner = new Scanner(System.in);
+        var source = scanner.nextLine().split("[\s;,]+");
+        var encoded = new char[source.length];
+
+        for (int i = 0; i < source.length; i++) {
+            encoded[i] = (char) (((int) source[i].charAt(0)) + 3);
+        }
+
+        System.out.println(Arrays.toString(encoded));
+    }
+
     @ParameterizedTest
     @MethodSource("com.emb.util.TestByteUtilsArgumentProvider#testByteArrayToLongArray")
-    @Disabled("Disabled `testByteArrayToLongArray()` until fixing basic conversion be done")
+//    @Disabled("Disabled `testByteArrayToLongArray()` until fixing basic conversion be done")
     public void testByteArrayToLongArray(byte[] bytes, long[] controlValue) {
         final var convertedLongArray = ByteUtils.byteArrayToLongArray(bytes);
 
-        assertEquals(Arrays.toString(controlValue), Arrays.toString(convertedLongArray));
+        assertEquals(ByteUtils.joinPrettyBytes(controlValue), ByteUtils.joinPrettyBytes(convertedLongArray));
     }
 
     @ParameterizedTest
     @MethodSource("com.emb.util.TestByteUtilsArgumentProvider#testLongArrayToByteArray")
-    @Disabled("Disabled `testLongArrayToBytesArray()` until fixing basic conversion be done")
+//    @Disabled("Disabled `testLongArrayToBytesArray()` until fixing basic conversion be done")
     public void testLongArrayToByteArray(long[] longs, byte[] controlValue) {
         final var convertedByteArray = ByteUtils.longArrayToByteArray(longs);
 
