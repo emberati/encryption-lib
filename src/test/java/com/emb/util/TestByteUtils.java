@@ -1,6 +1,5 @@
 package com.emb.util;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -8,7 +7,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Arrays;
-import java.util.Scanner;
 
 public class TestByteUtils {
     private static final long number = 0xFA3CDEBL;
@@ -32,8 +30,8 @@ public class TestByteUtils {
     @MethodSource("com.emb.util.TestByteUtilsArgumentProvider#testByteArrayToLong")
     public void testByteArrayToLong(byte[] bytes, long controlLong) {
         final var convertedLong = ByteUtils.byteArrayToLong(bytes);
-        final var controlValueString = ByteUtils.numberToPrettyBinaryString(controlLong);
-        final var convertedLongString = ByteUtils.numberToPrettyBinaryString(convertedLong);
+        final var controlValueString = ByteUtils.toBinaryString(controlLong);
+        final var convertedLongString = ByteUtils.toBinaryString(convertedLong);
 //        System.out.printf("Control  : %s%n", controlValueString);
 //        System.out.printf("Converted: %s%n", convertedLongString);
         assertEquals(controlValueString, convertedLongString);
@@ -43,24 +41,11 @@ public class TestByteUtils {
     @MethodSource("com.emb.util.TestByteUtilsArgumentProvider#testLongToByteArray")
     public void testLongToByteArray(long longValue, byte[] controlValue) {
         final var convertedBytes = ByteUtils.longToByteArray(longValue);
-        final var controlValueString = ByteUtils.joinPrettyBytes(controlValue);
-        final var convertedBytesString = ByteUtils.joinPrettyBytes(convertedBytes);
+        final var controlValueString = ByteUtils.toBinaryString(controlValue);
+        final var convertedBytesString = ByteUtils.toBinaryString(convertedBytes);
 //        System.out.printf("Control  : %s%n", controlValueString);
 //        System.out.printf("Converted: %s%n", convertedBytesString);
         assertEquals(controlValueString, convertedBytesString);
-    }
-
-    @Test
-    public void caesar() {
-        var scanner = new Scanner(System.in);
-        var source = scanner.nextLine().split("[\s;,]+");
-        var encoded = new char[source.length];
-
-        for (int i = 0; i < source.length; i++) {
-            encoded[i] = (char) (((int) source[i].charAt(0)) + 3);
-        }
-
-        System.out.println(Arrays.toString(encoded));
     }
 
     @ParameterizedTest
@@ -69,7 +54,7 @@ public class TestByteUtils {
     public void testByteArrayToLongArray(byte[] bytes, long[] controlValue) {
         final var convertedLongArray = ByteUtils.byteArrayToLongArray(bytes);
 
-        assertEquals(ByteUtils.joinPrettyBytes(controlValue), ByteUtils.joinPrettyBytes(convertedLongArray));
+        assertEquals(ByteUtils.toBinaryString(controlValue), ByteUtils.toBinaryString(convertedLongArray));
     }
 
     @ParameterizedTest
@@ -85,7 +70,7 @@ public class TestByteUtils {
     @MethodSource("com.emb.util.TestByteUtilsArgumentProvider#testShiftAll")
     public void testShiftAll(long block, Shift.ShiftDeclaration shift, int times, long controlValue) {
         final var shifted = ByteUtils.shiftAll(block, shift, times);
-        assertEquals(ByteUtils.numberToPrettyBinaryString(controlValue, 16), ByteUtils.numberToPrettyBinaryString(shifted, 16));
+        assertEquals(ByteUtils.toBinaryString(controlValue, 16), ByteUtils.toBinaryString(shifted, 16));
     }
 
     @ParameterizedTest

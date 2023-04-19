@@ -30,12 +30,15 @@ public class FeistelByteEncoder implements Encoder<byte[]> {
     @Override
     public byte[] decrypt(byte[] data) {
         final var longArray = ByteUtils.byteArrayToLongArray(data);
-        final var encryptedLongs = new long[longArray.length];
+
         for (int i = 0; i < longArray.length; i++) {
-            encryptedLongs[i] = decryptBlock(longArray[i]);
+            longArray[i] = decryptBlock(longArray[i]);
         }
 
-        return ByteUtils.removeZeroPrefix(ByteUtils.longArrayToByteArray(encryptedLongs));
+        var byteArray = ByteUtils.longArrayToByteArray(longArray);
+        byteArray = ByteUtils.removeNonMatchingZeros(byteArray);
+
+        return byteArray;
     }
 
     private long encryptBlock(long block) {

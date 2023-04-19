@@ -53,9 +53,9 @@ public class FeistelStringEncoder implements Encoder<String> {
 
     private static void printCompareBytes(Byte byteValue, Byte intValue) {
         var byteString = Optional.ofNullable(byteValue)
-                .map(ByteUtils::numberToPrettyBinaryString)
+                .map(ByteUtils::toBinaryString)
                 .orElse("         ");
-        var codeString = ByteUtils.numberToPrettyBinaryString(intValue);
+        var codeString = ByteUtils.toBinaryString(intValue);
         System.out.printf("byte, code: %s, %s%s%n",
                 byteString,
                 codeString,

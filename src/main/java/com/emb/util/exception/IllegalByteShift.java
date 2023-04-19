@@ -6,7 +6,7 @@ import com.emb.util.Shift;
 public class IllegalByteShift extends IllegalArgumentException {
     public IllegalByteShift(Shift.ShiftDeclaration shift, long block) {
         super("%s is not applicable to %s!"
-              .formatted(shift.prettifyEnumName(true), ByteUtils.numberToPrettyBinaryString(block)));
+              .formatted(shift.prettifyEnumName(true), ByteUtils.toBinaryString(block)));
     }
 
     public IllegalByteShift() {

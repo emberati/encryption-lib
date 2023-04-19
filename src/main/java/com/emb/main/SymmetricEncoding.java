@@ -114,39 +114,49 @@ public class SymmetricEncoding implements Encoder<byte[]> {
         return shifroblok;
     }
 
-    public static void Mлain(String[] args) {
+    public static void main(String[] args) {
         // Исходное сообщение
         System.out.printf("%s%n", Arrays.toString(msg));
+
         // Зашифрованное сообщение
         long c_msg = encryptBlock(key); // FIXME
         System.out.printf("%s%n", c_msg);
+
         // Расшифрованное сообщение
         long msg_ = decryptBlock(c_msg);
         System.out.printf("%s%n", msg_);
+
         // Отображаем на консоли исходный ключ K (и IV) для зашифровки и исходное сообщение text (все это объявлено в первых строках)
-        System.out.printf("Init Key %s", key);        // большой ключ K (64 бит) из битов которого создаются маленькие ключи K_i (по 32 бита)
-        System.out.printf("Init V %s", IV);        // дополнительный ключ (вектор) для шифровки первого блока сообщения врежимах CBC и OFB (64 бит)
+        System.out.printf("Init Key %s", key);      // большой ключ K (64 бит) из битов которого создаются маленькие ключи K_i (по 32 бита)
+        System.out.printf("Init V %s", IV);         // дополнительный ключ (вектор) для шифровки первого блока сообщения врежимах CBC и OFB (64 бит)
+
         // Вывод блоков сообщения до шифрования
         System.out.println("Text (message blocks)");
+
         for (int b = 0; b < B; b++)
             System.out.printf("%s ", msg[b]);    // выводим очередной блок сообщения
+
         // 1. Шифрование
         // 1.1. Шифрование в режиме ECB (электронная кодовая книга)
         long[] msg_ecb = new long[B];
         System.out.println("\nShifr ECB:");
+
         // Шифрование последовательно каждого блока без дополнительных преобразований
         for (int b = 0; b < B; b++) {
             msg_ecb[b] = encryptBlock(msg[b]);        // шифруем блок
             System.out.printf("%d ", msg_ecb[b]);    // выводим очередной блок сообщения	// выводим зашифрованный блок на консоль
             // В зашифрованном тексте 1й и 2й блоки одинаковы (3й с 4м тоже) как и в исходном сообщении - это недостаток режима ECB
         }
+
         // 1.2. Шифрование в режиме CBC (режим сцепления блоков шифротекста)
         long[] msg_cbc = new long[B];
         System.out.println("\nShifr CBC:");
+
         // Первый блок сообщения xor'ится с IV перед шифрованием:
         long blok = msg[0] ^ IV;
-        msg_cbc[0] = encryptBlock(blok); // шифруем блок
-        System.out.printf("%s ", msg_cbc[0]);    // выводим зашифрованный первый блок на консоль
+        msg_cbc[0] = encryptBlock(blok);        // шифруем блок
+        System.out.printf("%s ", msg_cbc[0]);   // выводим зашифрованный первый блок на консоль
+
         // Каждый последующий блок перед шифрованием xor'ится с предыдущим зашифрованным блоком:
         for (int b = 1; b < B; b++) {
             blok = msg[b] ^ msg_cbc[b - 1]; // xor с предыдущим зашифрованным
@@ -158,33 +168,40 @@ public class SymmetricEncoding implements Encoder<byte[]> {
         long[] msg_ofb = new long[B];
         System.out.println("\nShifr OFB:");
         blok = IV; // дополнительный ключ для зашифровки блоков текста
+
         for (int b = 0; b < B; b++) {
             blok = encryptBlock(blok);    // на каждом шаге шифруется этот дополнительный ключ
             msg_ofb[b] = blok ^ msg[b]; // и xor'ится с очередным блоком сообщения - получается зашифрованный блок сообщения
             System.out.printf("%s ", msg_ofb[b]);    // выводим зашифрованный блок на консоль
             // В зашифрованном тексте все блоки будут разными, не смотря на то что в исходном сообщении они повторялись
         }
+
         // 2. Расшифрование
         // 2.1. Расшифровка в режиме ECB (электронная кодовая книга)
         long msg_b;    // блок расшифрованного текста
         System.out.println("\nText ECB:");
+
         // Расшифровка последовательно каждого блока без дополнительных преобразований
         for (int b = 0; b < B; b++) {
             msg_b = decryptBlock(msg_ecb[b]);        // расшифровка блока
             System.out.printf("%s ", msg_b);        // выводим расшифрованный блок на консоль
         }
+
         // 2.2. Расшифровка в режиме CBC (режим сцепления блоков шифротекста)
         System.out.println("\nText CBC:");
+
         // Первый блок сообщения xor'ится с IV после расшифровки:
         msg_b = decryptBlock(msg_cbc[0]);    // расшифровка блока
         msg_b ^= IV; // xor'им с IV после расшифровки
         System.out.printf("%s ", msg_b);    // выводим расшифрованный первый блок на консоль
+
         // Каждый последующий блок после расшифровки xor'ится с предыдущим зашифрованным блоком:
         for (int b = 1; b < B; b++) {
             msg_b = decryptBlock(msg_cbc[b]);    // расшифровка блока
             msg_b ^= msg_cbc[b - 1];        // xor с предыдущим зашифрованным
             System.out.printf("%s ", msg_b);    // выводим расшифрованный блок на консоль
         }
+
         // 2.3. Расшифровка в режиме OFB (режим обратной связи по выходу)
         System.out.println("\nText OFB:");
         blok = IV; // дополнительный ключ для расшифровки блоков текста

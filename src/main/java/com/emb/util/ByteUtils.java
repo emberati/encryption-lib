@@ -15,30 +15,6 @@ public class ByteUtils {
     public static final int SHORT_MASK = MASK_16_BIT;
     public static final int BYTE = MASK_32_BIT;
 
-    public static String numberToPrettyBinaryString(byte value) {
-        var string = Integer.toBinaryString(value);
-        return prettifyBinaryString(string, 2);
-    }
-
-    public static String numberToPrettyBinaryString(short value) {
-        var string = Integer.toBinaryString(value);
-        return prettifyBinaryString(string, 4);
-    }
-
-    public static String numberToPrettyBinaryString(int value) {
-        var string = Integer.toBinaryString(value);
-        return prettifyBinaryString(string);
-    }
-
-    public static String numberToPrettyBinaryString(long value) {
-        var string = Long.toBinaryString(value);
-        return prettifyBinaryString(string);
-    }
-
-    public static String numberToPrettyBinaryString(long value, int nibblesAmount) {
-        return prettifyBinaryString(Long.toBinaryString(value), nibblesAmount);
-    }
-
     public static String prettifyBinaryString(String string) {
         var length = string.length();
         var nibblesAmount = length / 4;
@@ -69,26 +45,50 @@ public class ByteUtils {
         return prettyString.toString();
     }
 
-    public static String joinPrettyBytes(byte[] bytes) {
-        return joinPrettyBytes(bytes, ", ");
+    public static String toBinaryString(byte value) {
+        var string = Integer.toBinaryString(value);
+        return prettifyBinaryString(string, 2);
     }
 
-    public static String joinPrettyBytes(byte[] bytes, String delim) {
+    public static String toBinaryString(short value) {
+        var string = Integer.toBinaryString(value);
+        return prettifyBinaryString(string, 4);
+    }
+
+    public static String toBinaryString(int value) {
+        var string = Integer.toBinaryString(value);
+        return prettifyBinaryString(string);
+    }
+
+    public static String toBinaryString(long value) {
+        var string = Long.toBinaryString(value);
+        return prettifyBinaryString(string);
+    }
+
+    public static String toBinaryString(long value, int nibblesAmount) {
+        return prettifyBinaryString(Long.toBinaryString(value), nibblesAmount);
+    }
+
+    public static String toBinaryString(byte[] bytes) {
+        return toBinaryString(bytes, ", ");
+    }
+
+    public static String toBinaryString(byte[] bytes, String delim) {
         var joiner = new StringJoiner(delim);
         for (var value: bytes) {
-            joiner.add(numberToPrettyBinaryString(value));
+            joiner.add(toBinaryString(value));
         }
         return joiner.toString();
     }
 
-    public static String joinPrettyBytes(long[] longs) {
-        return joinPrettyBytes(longs, ", ");
+    public static String toBinaryString(long[] longs) {
+        return toBinaryString(longs, ", ");
     }
 
-    public static String joinPrettyBytes(long[] longs, String delim) {
+    public static String toBinaryString(long[] longs, String delim) {
         var joiner = new StringJoiner(delim);
         for (var value: longs) {
-            joiner.add(numberToPrettyBinaryString(value));
+            joiner.add(toBinaryString(value));
         }
         return joiner.toString();
     }
@@ -117,7 +117,6 @@ public class ByteUtils {
         var bytePosition = 0;
         for (long block : longs) {
             var buffer = longToByteArray(block);
-//            buffer = removeZeroPrefix(buffer);
             System.arraycopy(buffer, 0, bytes, bytePosition, buffer.length);
             bytePosition += buffer.length;
         }
@@ -253,5 +252,18 @@ public class ByteUtils {
         byte[] result = new byte[i + 1];
         System.arraycopy(bytes, 0, result, 0, result.length);
         return result;
+    }
+
+    public static byte[] removeNonMatchingZeros(byte[] byteArray) {
+        var tail = Arrays.copyOfRange(byteArray, byteArray.length - Long.BYTES, byteArray.length);
+        var head = Arrays.copyOfRange(byteArray, 0, byteArray.length - Long.BYTES);
+
+        tail = removeZeroPrefix(tail);
+
+        byteArray = new byte[byteArray.length - Long.BYTES + tail.length];
+
+        System.arraycopy(head, 0, byteArray, 0, head.length);
+        System.arraycopy(tail, 0, byteArray, head.length, tail.length);
+        return byteArray;
     }
 }
