@@ -1,4 +1,4 @@
-package com.emb.main;
+package com.emb.crypto;
 
 import com.emb.util.ByteUtils;
 
@@ -6,29 +6,38 @@ import java.util.Arrays;
 import java.util.Random;
 import java.util.function.Function;
 
-public class FeistelByteEncoder implements Encoder<byte[]> {
+public class ECBByteEncoder implements Encoder<byte[]> {
 
     private static final int ROUND_AMOUNT = 8; // Число раундов
     private static final long MASK_32_RIGHT = 0xFFFFFFFFL; // 32 разрядное число
     private final long key;
     private final long seed;
 
-    public FeistelByteEncoder() {
+    public ECBByteEncoder() {
         this(0x96EA704CFB1CF672L);
     }
 
-    public FeistelByteEncoder(long seed) {
+    public ECBByteEncoder(long seed) {
         this.key = new Random(seed).nextLong();
         this.seed = seed;
     }
 
     @Override
-    public byte[] encrypt(byte[] data) {
-        return convertAndEncrypt(this::encryptBlock, data);
+    public byte[] encode(byte[] data) {
+        final var longArray = ByteUtils.byteArrayToLongArray(data);
+
+        for (int i = 0; i < longArray.length; i++) {
+            longArray[i] = encryptBlock(longArray[i]);
+        }
+
+        var byteArray = ByteUtils.longArrayToByteArray(longArray);
+        byteArray = ByteUtils.removeNonMatchingZeros(byteArray);
+
+        return byteArray;
     }
 
     @Override
-    public byte[] decrypt(byte[] data) {
+    public byte[] decode(byte[] data) {
         final var longArray = ByteUtils.byteArrayToLongArray(data);
 
         for (int i = 0; i < longArray.length; i++) {
@@ -75,17 +84,7 @@ public class FeistelByteEncoder implements Encoder<byte[]> {
 
         // cleaning zeros
 
-        byte[] tail;
-        byte[] head;
-
-        tail = Arrays.copyOfRange(target, target.length - Long.BYTES, target.length);
-        tail = ByteUtils.removeZeroPrefix(tail);
-        head = Arrays.copyOfRange(target, 0, target.length - Long.BYTES);
-
-        buffer = new byte[target.length - Long.BYTES + tail.length];
-
-        System.arraycopy(head, 0, buffer, 0, head.length);
-        System.arraycopy(tail, 0, buffer, head.length, tail.length);
+        buffer = ByteUtils.removeNonMatchingZeros(target);
 
         return buffer;
     }

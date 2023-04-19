@@ -1,4 +1,4 @@
-package com.emb.main;
+package com.emb.crypto;
 
 import org.junit.jupiter.params.provider.Arguments;
 
@@ -6,8 +6,8 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.params.provider.Arguments.of;
 
-public class TestFeistelByteEncoderArgumentProvider {
-    public static Stream<Arguments> testFeistelByteEncoderEncodeDecode() {
+public class TestECBByteEncoderArgumentProvider {
+    public static Stream<Arguments> testECBByteEncoderEncodeDecode() {
         final var bytesLessLong = new byte[] {
                 (byte) 0xFA, (byte) 0xAB,
                 (byte) 0xBB, (byte) 0xCD

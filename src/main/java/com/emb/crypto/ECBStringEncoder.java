@@ -1,4 +1,4 @@
-package com.emb.main;
+package com.emb.crypto;
 
 import com.emb.util.ByteUtils;
 
@@ -6,31 +6,31 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
-public class FeistelStringEncoder implements Encoder<String> {
+public class ECBStringEncoder implements Encoder<String> {
 
-    private final FeistelByteEncoder byteEncoder = new FeistelByteEncoder();
+    private final ECBByteEncoder byteEncoder = new ECBByteEncoder();
     private final Charset charset;
 
-    public FeistelStringEncoder() {
+    public ECBStringEncoder() {
         this(StandardCharsets.UTF_8);
     }
 
-    public FeistelStringEncoder(Charset charset) {
+    public ECBStringEncoder(Charset charset) {
         this.charset = charset;
     }
 
     @Override
-    public String encrypt(String data) {
-        final var encoded = byteEncoder.encrypt(data.getBytes(charset));
+    public String encode(String data) {
+        final var encoded = byteEncoder.encode(data.getBytes(charset));
         final var chars = byteArrayToCharArray(encoded);
         return new String(chars);
     }
 
     @Override
-    public String decrypt(String data) {
+    public String decode(String data) {
         final var chars = data.toCharArray();
         final var bytes = charArrayToByteArray(chars);
-        final var decoded = byteEncoder.decrypt(bytes);
+        final var decoded = byteEncoder.decode(bytes);
 
         return new String(decoded);
     }

@@ -1,4 +1,4 @@
-package com.emb.main;
+package com.emb.crypto;
 
 import java.util.Arrays;
 
@@ -213,12 +213,12 @@ public class SymmetricEncoding implements Encoder<byte[]> {
     }
 
     @Override
-    public byte[] encrypt(byte[] data) {
+    public byte[] encode(byte[] data) {
         return new byte[0];
     }
 
     @Override
-    public byte[] decrypt(byte[] data) {
+    public byte[] decode(byte[] data) {
         return new byte[0];
     }
 }
