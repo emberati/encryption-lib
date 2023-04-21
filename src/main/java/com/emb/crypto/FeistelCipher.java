@@ -3,6 +3,7 @@ package com.emb.crypto;
 import com.emb.util.ByteUtils;
 import com.emb.util.Shift;
 
+import java.util.Arrays;
 import java.util.Random;
 import java.util.function.Function;
 
@@ -60,13 +61,40 @@ public abstract class FeistelCipher<T> implements Encoder<T> {
         return (long) leftHalfBlock << 32 | rightHalfBlock & Shift.INT.mask();
     }
 
+    // Разбивание на блоки и параллельное шфрование/дешифрование
+    protected byte[] processSequenceFast(BlockCryptographyAction action, byte[] data) {
+        final var target = new byte[Long.BYTES * ByteUtils.amountOfLongsInByteArray(data)];
+
+        var buffer = new byte[Long.BYTES];
+        var i = 0;
+        var section = Math.min(Long.BYTES, data.length - i);
+        var block = 0L;
+
+        while (section > 0) {
+            Arrays.fill(buffer, 0, Long.BYTES - section, (byte) 0);
+
+            System.arraycopy(data, i, buffer, Long.BYTES - section, section);
+            block = ByteUtils.byteArrayToLong(buffer);
+
+            block = action.apply(block);
+            buffer = ByteUtils.longToByteArray(block);
+
+            System.arraycopy(buffer, 0, target, i, Long.BYTES);
+
+            i += section;
+            section = Math.min(Long.BYTES, data.length - i);
+        }
+
+        return target;
+    }
+
     /**
      * A function instance of {@link BlockCryptographyAction}.
      * Implements <strong>encryption</strong> process for the single block of sequence.
      * @param block is a block to encrypt;
      * @return <strong>encrypted</strong> block.
      */
-    protected long encryptBlock(Long block) {
+    protected long encryptBlock(long block) {
         return processBlock(block, false);
     }
 
@@ -82,14 +110,11 @@ public abstract class FeistelCipher<T> implements Encoder<T> {
 
     // Генерация 32 разрядного ключа на i-м раунде из исходного 64-разрядного
     protected int roundKey(int i, long key) {
-//        return (int) rightShift64(key, i * 8);    // циклический сдвиг на 8 бит и обрезка правых 32 бит
         return (int) ByteUtils.shiftAll(key, Shift.INT.right, i * 8);
     }
 
     // Образующая функция - функция, шифрующая половину блока halfBlock ключом K_i на i-м раунде
     protected int F(int halfBlock, int K_i) {
-//        int f1 = leftShift32(halfBlock, 9);
-//        int f2 = rightShift32(K_i, 11) | halfBlock;
         int f1 = (int) ByteUtils.shift(halfBlock, Shift.INT.left, 9);
         int f2 = (int) ByteUtils.shift(K_i, Shift.INT.right, 11) | halfBlock;
         return f1 ^ f2;
