@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class TestByteEncoders {
     @ParameterizedTest
     @ArgumentsSource(ByteEncoderArgumentProvider.class)
-    public void testECBByteEncoderEncodeDecode(byte[] original, byte[] controlValue) {
+    public void testECBByteEncoder(byte[] original, byte[] controlValue) {
         final var byteEncoder = new ECBByteEncoder();
         final var encoded = byteEncoder.encode(original);
         final var decoded = byteEncoder.decode(encoded);
@@ -19,7 +19,7 @@ public class TestByteEncoders {
 
     @ParameterizedTest
     @ArgumentsSource(ByteEncoderArgumentProvider.class)
-    public void testCBCByteEncoderEncodeDecode(byte[] original, byte[] controlValue) {
+    public void testCBCByteEncoder(byte[] original, byte[] controlValue) {
         final var byteEncoder = new CBCByteEncoder();
         final var encoded = byteEncoder.encode(original);
         final var decoded = byteEncoder.decode(encoded);
@@ -29,7 +29,7 @@ public class TestByteEncoders {
 
     @ParameterizedTest
     @ArgumentsSource(ByteEncoderArgumentProvider.class)
-    public void testOFBByteEncoderEncodeDecode(byte[] original, byte[] controlValue) {
+    public void testOFBByteEncoder(byte[] original, byte[] controlValue) {
         final var byteEncoder = new OFBByteEncoder();
         final var encoded = byteEncoder.encode(original);
         final var decoded = byteEncoder.decode(encoded);
