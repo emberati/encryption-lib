@@ -26,4 +26,14 @@ public class TestByteEncoders {
         final var delimiter = " ";
         assertEquals(ByteUtils.toBinaryString(controlValue, delimiter), ByteUtils.toBinaryString(decoded, delimiter));
     }
+
+    @ParameterizedTest
+    @ArgumentsSource(ByteEncoderArgumentProvider.class)
+    public void testOFBByteEncoderEncodeDecode(byte[] original, byte[] controlValue) {
+        final var byteEncoder = new OFBByteEncoder();
+        final var encoded = byteEncoder.encode(original);
+        final var decoded = byteEncoder.decode(encoded);
+        final var delimiter = " ";
+        assertEquals(ByteUtils.toBinaryString(controlValue, delimiter), ByteUtils.toBinaryString(decoded, delimiter));
+    }
 }
