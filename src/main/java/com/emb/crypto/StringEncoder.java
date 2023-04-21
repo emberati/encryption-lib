@@ -6,16 +6,26 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
-public class ECBStringEncoder implements Encoder<String> {
+public class StringEncoder implements Encoder<String> {
 
-    private final ECBByteEncoder byteEncoder = new ECBByteEncoder();
+    private final Encoder<byte[]> byteEncoder;
     private final Charset charset;
 
-    public ECBStringEncoder() {
-        this(StandardCharsets.UTF_8);
+
+    public StringEncoder() {
+        this(Charset.defaultCharset());
     }
 
-    public ECBStringEncoder(Charset charset) {
+    public StringEncoder(Charset charset) {
+        this(new ECBByteEncoder(), charset);
+    }
+
+    public StringEncoder(Encoder<byte[]> byteEncoder) {
+        this(byteEncoder, Charset.defaultCharset());
+    }
+
+    public StringEncoder(Encoder<byte[]> byteEncoder, Charset charset) {
+        this.byteEncoder = byteEncoder;
         this.charset = charset;
     }
 

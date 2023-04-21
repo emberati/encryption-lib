@@ -31,15 +31,13 @@ public class CBCByteEncoder extends FeistelCipher<byte[]> {
             longArray[i] = encryptBlock(longArray[i] ^ longArray[i - 1]);
         }
 
-        var byteArray = ByteUtils.longArrayToByteArray(longArray);
-        byteArray = ByteUtils.removeNonMatchingZeros(byteArray);
-
-        return byteArray;
+        return ByteUtils.longArrayToByteArray(longArray);
     }
 
     @Override
     public byte[] decode(byte[] data) {
         final var longArray = ByteUtils.byteArrayToLongArray(data);
+
 
         longArray[0] = decryptBlock(longArray[0]) ^ vector;
 

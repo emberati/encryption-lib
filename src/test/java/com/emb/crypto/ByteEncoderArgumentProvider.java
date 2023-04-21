@@ -10,7 +10,7 @@ import static org.junit.jupiter.params.provider.Arguments.of;
 
 public class ByteEncoderArgumentProvider implements ArgumentsProvider {
     @Override
-    public Stream<? extends Arguments> provideArguments(ExtensionContext extensionContext) throws Exception {
+    public Stream<? extends Arguments> provideArguments(ExtensionContext extensionContext) {
         final var bytesLessLong = new byte[] {
                 (byte) 0xFA, (byte) 0xAB,
                 (byte) 0xBB, (byte) 0xCD,
