@@ -225,8 +225,8 @@ public class ByteUtils {
      * @return shifted long value.
      */
     public static long shift(long block, Shift.ShiftDeclaration shift, int on) {
-        if ((block & ~shift.type().mask()) != 0x0L)
-            throw new IllegalByteShift(shift, block);
+//        if ((block & ~shift.type().mask()) != 0x0L)
+//            throw new IllegalByteShift(shift, block);
         if (shift.direction() == Shift.ShiftDirection.LEFT) {
             return (block & shift.mask()) << on;
         } else {
