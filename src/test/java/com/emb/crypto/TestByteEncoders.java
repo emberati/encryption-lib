@@ -13,7 +13,8 @@ public class TestByteEncoders {
         final var byteEncoder = new ECBByteEncoder();
         final var encoded = byteEncoder.encode(original);
         final var decoded = byteEncoder.decode(encoded);
-        assertEquals(ByteUtils.toBinaryString(controlValue, ", "), ByteUtils.toBinaryString(decoded, ", "));
+        final var delimiter = " ";
+        assertEquals(ByteUtils.toBinaryString(controlValue, delimiter), ByteUtils.toBinaryString(decoded, delimiter));
     }
 
     @ParameterizedTest
@@ -22,6 +23,7 @@ public class TestByteEncoders {
         final var byteEncoder = new CBCByteEncoder();
         final var encoded = byteEncoder.encode(original);
         final var decoded = byteEncoder.decode(encoded);
-        assertEquals(ByteUtils.toBinaryString(controlValue, ", "), ByteUtils.toBinaryString(decoded, ", "));
+        final var delimiter = " ";
+        assertEquals(ByteUtils.toBinaryString(controlValue, delimiter), ByteUtils.toBinaryString(decoded, delimiter));
     }
 }
