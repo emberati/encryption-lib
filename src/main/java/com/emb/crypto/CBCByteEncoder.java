@@ -1,6 +1,7 @@
 package com.emb.crypto;
 
 import com.emb.util.ByteUtils;
+import com.emb.util.Shift;
 
 import java.util.Random;
 
@@ -21,13 +22,29 @@ public class CBCByteEncoder extends FeistelCipher<byte[]> {
     }
 
     @Override
-    protected byte[] processSequence(BlockCryptographyAction action, byte[] data) {
+    public byte[] encode(byte[] data) {
         final var longArray = ByteUtils.byteArrayToLongArray(data);
 
-        longArray[0] ^= vector;
+        longArray[0] = encryptBlock(longArray[0] ^ vector);
 
         for (int i = 1; i < longArray.length; i++) {
-            longArray[i] = action.apply(longArray[i] ^ longArray[i - 1]);
+            longArray[i] = encryptBlock(longArray[i] ^ longArray[i - 1]);
+        }
+
+        var byteArray = ByteUtils.longArrayToByteArray(longArray);
+        byteArray = ByteUtils.removeNonMatchingZeros(byteArray);
+
+        return byteArray;
+    }
+
+    @Override
+    public byte[] decode(byte[] data) {
+        final var longArray = ByteUtils.byteArrayToLongArray(data);
+
+        longArray[0] = decryptBlock(longArray[0]) ^ vector;
+
+        for (int i = 1; i < longArray.length; i++) {
+            longArray[i] = decryptBlock(longArray[i]) ^ longArray[i - 1];
         }
 
         var byteArray = ByteUtils.longArrayToByteArray(longArray);

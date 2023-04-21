@@ -8,8 +8,17 @@ import java.util.function.Function;
 
 public class ECBByteEncoder extends FeistelCipher<byte[]> {
 
-    // Разбивание на блоки и параллельное шфрование/дешифрование
     @Override
+    public byte[] encode(byte[] data) {
+        return processSequence(this::encryptBlock, data);
+    }
+
+    @Override
+    public byte[] decode(byte[] data) {
+        return ByteUtils.removeNonMatchingZeros(processSequence(this::decryptBlock, data));
+    }
+
+    // Разбивание на блоки и параллельное шфрование/дешифрование
     protected byte[] processSequence(BlockCryptographyAction action, byte[] data) {
         final var target = new byte[Long.BYTES * ByteUtils.amountOfLongsInByteArray(data)];
 
@@ -33,10 +42,6 @@ public class ECBByteEncoder extends FeistelCipher<byte[]> {
             section = Math.min(Long.BYTES, data.length - i);
         }
 
-        // cleaning zeros
-
-        buffer = ByteUtils.removeNonMatchingZeros(target);
-
-        return buffer;
+        return target;
     }
 }

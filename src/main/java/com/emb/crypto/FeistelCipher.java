@@ -24,24 +24,6 @@ public abstract class FeistelCipher<T> implements Encoder<T> {
         this.roundsAmount = roundsAmount;
     }
 
-    @Override
-    public T encode(T data) {
-        return processSequence(this::encryptBlock, data);
-    }
-
-    @Override
-    public T decode(T data) {
-        return processSequence(this::decryptBlock, data);
-    }
-
-    /**
-     * Processing abstract cryptography action (encryption process or decryption) on sequence.
-     * @param action specified cryptography action (to encrypt or to decrypt);
-     * @param data what to process with cryptography action;
-     * @return result of cryptography action.
-     */
-    protected abstract T processSequence(BlockCryptographyAction action, T data);
-
     /**
      * Processing abstract cryptography action on a single sequence block.
      * @param block what to process;
@@ -101,7 +83,7 @@ public abstract class FeistelCipher<T> implements Encoder<T> {
     // Генерация 32 разрядного ключа на i-м раунде из исходного 64-разрядного
     protected int roundKey(int i, long key) {
 //        return (int) rightShift64(key, i * 8);    // циклический сдвиг на 8 бит и обрезка правых 32 бит
-        return (int) ByteUtils.shiftAll(key, Shift.BYTE.right, i * 8);
+        return (int) ByteUtils.shiftAll(key, Shift.INT.right, i * 8);
     }
 
     // Образующая функция - функция, шифрующая половину блока halfBlock ключом K_i на i-м раунде

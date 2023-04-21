@@ -197,8 +197,8 @@ public class SymmetricEncoding implements Encoder<byte[]> {
 
         // Каждый последующий блок после расшифровки xor'ится с предыдущим зашифрованным блоком:
         for (int b = 1; b < B; b++) {
-            msg_b = decryptBlock(msg_cbc[b]);    // расшифровка блока
-            msg_b ^= msg_cbc[b - 1];        // xor с предыдущим зашифрованным
+            msg_b = decryptBlock(msg_cbc[b]);   // расшифровка блока
+            msg_b ^= msg_cbc[b - 1];            // xor с предыдущим зашифрованным
             System.out.printf("%s ", msg_b);    // выводим расшифрованный блок на консоль
         }
 
