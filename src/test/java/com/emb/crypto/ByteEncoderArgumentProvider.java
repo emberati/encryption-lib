@@ -1,16 +1,19 @@
 package com.emb.crypto;
 
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsProvider;
 
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.params.provider.Arguments.of;
 
-public class TestECBByteEncoderArgumentProvider {
-    public static Stream<Arguments> testECBByteEncoderEncodeDecode() {
+public class ByteEncoderArgumentProvider implements ArgumentsProvider {
+    @Override
+    public Stream<? extends Arguments> provideArguments(ExtensionContext extensionContext) throws Exception {
         final var bytesLessLong = new byte[] {
                 (byte) 0xFA, (byte) 0xAB,
-                (byte) 0xBB, (byte) 0xCD
+                (byte) 0xBB, (byte) 0xCD,
         };
         final var bytesBiggerLong = new byte[] {
                 (byte) 0xFA, (byte) 0xAB,
@@ -18,14 +21,13 @@ public class TestECBByteEncoderArgumentProvider {
                 (byte) 0xFA, (byte) 0xAB,
                 (byte) 0xBB, (byte) 0xCD,
                 (byte) 0xFA, (byte) 0xAB,
-                (byte) 0xBB, (byte) 0xCD
+                (byte) 0xBB, (byte) 0xCD,
         };
         final var bytesZeroTail = new byte[] {
                 (byte) 0xFA, (byte) 0xAB,
                 (byte) 0xBB, (byte) 0xCD,
                 (byte) 0x00, (byte) 0x00,
                 (byte) 0x00, (byte) 0x00,
-
         };
         final var bytesNegative = new byte[] {
                 (byte) 0xFF, (byte) 0xAA,
