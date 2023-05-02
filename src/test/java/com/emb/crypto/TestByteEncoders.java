@@ -7,6 +7,7 @@ import org.junit.jupiter.params.provider.ArgumentsSource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestByteEncoders {
+
     @ParameterizedTest
     @ArgumentsSource(ByteEncoderArgumentProvider.class)
     public void testECBByteEncoder(byte[] original, byte[] controlValue) {

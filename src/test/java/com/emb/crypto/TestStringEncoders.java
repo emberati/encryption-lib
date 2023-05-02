@@ -5,7 +5,7 @@ import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TestStringEncoder {
+public class TestStringEncoders {
     @ParameterizedTest
     @ArgumentsSource(TestStringEncoderArgumentProvider.class)
     public void testECBStringEncoder(String original, String controlValue) {

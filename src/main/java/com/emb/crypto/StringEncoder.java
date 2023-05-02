@@ -3,7 +3,6 @@ package com.emb.crypto;
 import com.emb.util.ByteUtils;
 
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 public class StringEncoder implements Encoder<String> {
