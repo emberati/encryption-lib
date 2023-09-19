@@ -1,17 +1,17 @@
-package com.emb.main;
+package com.emb.util;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+@SuppressWarnings("unused")
 public class Timer {
     private final List<Long> periods = new LinkedList<>();
     private long startTime = 0L;
     private long minTime = Long.MAX_VALUE;
     private long maxTime = 0L;
     private String summary;
-//    private String lastPeriodName = null;
 
     public Timer() {
         reset();
@@ -25,8 +25,6 @@ public class Timer {
     }
 
     public void start() {
-//        lastPeriodName = periodName;
-//        periods.put(lastPeriodName, null);
         summary = null;
         startTime = System.nanoTime();
     }
@@ -34,7 +32,6 @@ public class Timer {
     public long stop() {
         var estimated = getCurrentTime();
         startTime = 0L;
-//        periods.put(lastPeriodName, estimated);
         if (estimated < minTime) minTime = estimated;
         if (estimated > maxTime) maxTime = estimated;
         periods.add(estimated);
