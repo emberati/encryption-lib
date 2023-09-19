@@ -10,7 +10,13 @@ import static org.junit.jupiter.params.provider.Arguments.of;
 
 @SuppressWarnings("unused")
 public class TestStringEncoderArgumentProvider implements ArgumentsProvider {
+    enum A {
+        A, B, C
+    }
 
+    public static void main(String[] args) {
+        A.valueOf("D");
+    }
     @Override
     public Stream<? extends Arguments> provideArguments(ExtensionContext extensionContext) {
         final var smallString = "Test";
